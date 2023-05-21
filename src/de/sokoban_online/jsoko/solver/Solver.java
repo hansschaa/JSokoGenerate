@@ -471,7 +471,7 @@ public abstract class Solver extends SwingWorker<Solution, String> implements Di
     /**
      * Individual method of each solver class to search for a solution
      */
-    abstract protected Solution searchSolution();
+    abstract public Solution searchSolution();
 
     /**
      * Identifies the boxes which are relevant for the search.

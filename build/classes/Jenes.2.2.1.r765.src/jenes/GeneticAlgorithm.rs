@@ -1,0 +1,4 @@
+jenes.GeneticAlgorithm
+jenes.GeneticAlgorithm$ElitismStrategy
+jenes.GeneticAlgorithm$Statistics
+jenes.GeneticAlgorithm$ResizeStrategy

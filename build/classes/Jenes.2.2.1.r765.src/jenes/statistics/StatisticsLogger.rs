@@ -1,0 +1,3 @@
+jenes.statistics.StatisticsLogger$Loggable
+jenes.statistics.StatisticsLogger
+jenes.statistics.StatisticsLogger$LoggableStatistics

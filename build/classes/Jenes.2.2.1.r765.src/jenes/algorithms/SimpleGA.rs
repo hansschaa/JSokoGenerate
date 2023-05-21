@@ -1,0 +1,3 @@
+jenes.algorithms.SimpleGA
+jenes.algorithms.SimpleGA$SelectionMethod
+jenes.algorithms.SimpleGA$CrossoverMethod
