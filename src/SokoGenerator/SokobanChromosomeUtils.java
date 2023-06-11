@@ -97,7 +97,7 @@ public class SokobanChromosomeUtils {
     }
 
     public static ArrayList<Pair> GetTilesPosMatrix(char tileType, char[][] genes) {
-        int iMax = genes.length;
+        /*int iMax = genes.length;
         int jMax = genes[0].length;
         ArrayList<Pair> goalCandidates = new ArrayList();
 
@@ -109,7 +109,8 @@ public class SokobanChromosomeUtils {
             }
         }
 
-        return goalCandidates;
+        return goalCandidates;*/
+        return new ArrayList();
     }
 
     public static ArrayList<Pair> GetTilesPosMatrix(char[] tileTypes, char[][] genes) {

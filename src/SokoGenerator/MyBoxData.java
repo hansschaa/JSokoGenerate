@@ -28,7 +28,7 @@ public class MyBoxData {
     }
 
     boolean TrySetBoxPosInRoute(SokobanChromosome sokobanChromosome) {
-        if (this.boxRouteIndex < this.boxRoute.size() && this.goalRouteIndex >= 0 && sokobanChromosome.boxDatas.size() < Generator.maxBox) {
+        /*if (this.boxRouteIndex < this.boxRoute.size() && this.goalRouteIndex >= 0 && sokobanChromosome.boxDatas.size() < Generator.maxBox) {
             System.out.println("Do TrySetBoxPosInRoute");
             boolean haveSolution = false;
 
@@ -74,7 +74,8 @@ public class MyBoxData {
             return haveSolution;
         } else {
             return false;
-        }
+        }*/
+        return false;
     }
 
     private boolean PerformExchange(SokobanChromosome chromosome) {

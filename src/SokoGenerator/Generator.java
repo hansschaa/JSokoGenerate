@@ -31,29 +31,44 @@ import jenes.stage.AbstractStage;
 import jenes.stage.operator.common.TournamentSelector;
 
 public class Generator {
-    private static final int GENERATION_LIMIT = 12;
-    public static int maxBox = 7;
+    
     public static JSoko application;
     public static SokobanGA sokobanGA;
     public static Random random;
-    public static ArrayList<SokoTree> sokoTrees = new ArrayList();
-    public static ArrayList<Pair> goalCandidates;
-    public static char[][] boardBase;
-    public Thread generatorThread;
-    public LevelCollection levelCollection;
-    public SokoBoard sokoBoard;
+    
+    //Parameters
+    private static final int P_MAX_GENERATIONS = 12;
+    private static final int P_MAX_INDIVIDUALS = 12;
+    public static int P_MAX_BOXES;
+    public static char[][] P_BASE_BOARD;
     private Population<SokobanChromosome> importedPopulation;
-    Queue<Pair> queue = new LinkedList();
+    
+    //Stats
     public static int totalMutationInvertBoxCount;
     public static int effectiveInvertBoxMutation;
     public static int totalMutationInvertPlayerCount;
     public static int effectiveInvertPlayerMutation;
+    
+    //Others
+    public Thread generatorThread;
+    
+    
+    
+    public static ArrayList<SokoTree> sokoTrees = new ArrayList();
+    public static ArrayList<Pair> goalCandidates;
+    
+    public LevelCollection levelCollection;
+    public SokoBoard sokoBoard;
+    
+    Queue<Pair> queue = new LinkedList();
+
 
     public Generator(JSoko application) throws FileNotFoundException {
         Generator.application = application;
-        this.sokoBoard = new SokoBoard();
+        System.out.println("Generator constructor");
+        /*this.sokoBoard = new SokoBoard();
         this.importedPopulation = new Population();
-        random = new Random();
+        random = new Random();*/
     }
 
     public void Init() throws FileNotFoundException {
@@ -72,7 +87,7 @@ public class Generator {
 
     public boolean RunGA() {
         System.out.println("----> Run GA....");
-        sokobanGA = new SokobanGA(this.importedPopulation, 12, application, this);
+        /*sokobanGA = new SokobanGA(this.importedPopulation, 12, application, this);
         boardBase = (char[][])this.sokoBoard.levels.get(0);
         this.Preprocess();
         if (sokoTrees.size() == 0) {
@@ -103,11 +118,13 @@ public class Generator {
             });
             this.generatorThread.start();
             return true;
-        }
+        }*/
+        
+        return true;
     }
 
     private void Preprocess() {
-        goalCandidates = SokobanChromosomeUtils.GetTilesPosMatrix(' ', boardBase);
+        /*goalCandidates = SokobanChromosomeUtils.GetTilesPosMatrix(' ', boardBase);
         double maxInitialStates = Math.ceil((double)(goalCandidates.size() / 2));
         if (maxInitialStates > 10.0) {
             maxInitialStates = 10.0;
@@ -130,12 +147,12 @@ public class Generator {
             PrintStream var10000 = System.out;
             String var10001 = var5.getMessage();
             var10000.println("Error: " + var10001 + " Causa: " + var5.getCause());
-        }
+        }*/
 
     }
 
     public void PutBox(char[][] genes, Pair boxPos) {
-        SokoNode root = new SokoNode((SokoNode)null, boxPos);
+        /*SokoNode root = new SokoNode((SokoNode)null, boxPos);
         SokoTree sokoTree = new SokoTree(root, genes);
         boolean haveSolution = sokoTree.InitSearch();
         if (haveSolution) {
@@ -161,7 +178,7 @@ public class Generator {
             }
         } else {
             System.out.println("No tiene solución");
-        }
+        }*/
 
     }
 

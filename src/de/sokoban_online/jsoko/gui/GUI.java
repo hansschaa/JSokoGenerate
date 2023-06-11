@@ -19,6 +19,7 @@
  */
 package de.sokoban_online.jsoko.gui;
 
+import SokoGenerator.Generator;
 import static de.sokoban_online.jsoko.resourceHandling.Settings.LetslogicSubmitSolutions.ALL_LEVELS_CURRENT_COLLECTION;
 import static de.sokoban_online.jsoko.resourceHandling.Settings.LetslogicSubmitSolutions.ALL_LEVELS_OF_COLLECTIONS;
 import static de.sokoban_online.jsoko.resourceHandling.Settings.LetslogicSubmitSolutions.ONLY_CURRENT_LEVEL;
@@ -134,6 +135,7 @@ import de.sokoban_online.jsoko.utilities.Utilities;
 import de.sokoban_online.jsoko.utilities.OSSpecific.OSSpecific;
 import de.sokoban_online.jsoko.utilities.OSSpecific.OSSpecific.OSType;
 import de.sokoban_online.jsoko.workInProgress.newSettingsPanel.SettingsFrameNew;
+import java.util.logging.Logger;
 
 
 /**
@@ -239,6 +241,9 @@ public final class GUI extends JPanel implements ActionListener {
 
     /** <code>JCheckBox</code> indicating whether the go-through feature is enabled. */
     public JCheckBoxMenuItem isGoThroughEnabled;
+    
+        /** Generator **/
+        Generator generator;
 
 	/**
 	 * Creates a new object for displaying the GUI of this program.
@@ -247,7 +252,7 @@ public final class GUI extends JPanel implements ActionListener {
 	 *                             of all loaded levels
 	 */
 	public GUI(JSoko application) {
-
+            
 		this.application = application;
 
 		// Set the border layout for this GUI.
@@ -1048,6 +1053,26 @@ public final class GUI extends JPanel implements ActionListener {
 		menu.add(menuItem);
 		playModeDependentObjects.add(menuItem); // set inactive when editor is activated
 
+                /*
+		 * Generator Menu
+		 */
+		// "Generator"
+                menu = new JMenu("Generador");
+		menuBar.add(menu);
+                
+                // Create menu item for starting and stopping the generator.
+		menuItem = new JMenuItem("Iniciar");
+		menuItem.setActionCommand("InitGenerator");
+		menuItem.addActionListener(e -> {
+                    if (e.getActionCommand().equals("InitGenerator")) {
+                        try {
+                            generator = new Generator(this.application);
+                        } catch (FileNotFoundException ex) {
+                            Logger.getLogger(GUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+                        }
+                    }
+                });
+		menu.add(menuItem);
 
 		/*
 		 * Solver menu
