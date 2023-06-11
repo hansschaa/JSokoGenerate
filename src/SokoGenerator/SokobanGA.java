@@ -58,11 +58,11 @@ public class SokobanGA extends GeneticAlgorithm<SokobanChromosome> implements Ge
         var10000.println("\tAvg score : " + var10001[0]);
     }
 
-    Solution GetSolution(char[][] genes, int boxCount) {
+    Solution GetSolution(char[][] genes) {
         this.solverLevel.setBoardData(genes.toString());
         this.solverLevel.setHeight(genes.length);
         this.solverLevel.setWidth(genes[0].length);
-        this.solverLevel.setBoxCount(boxCount);
+        //this.solverLevel.setBoxCount(boxCount);
         LevelCollection levelCollection = (new LevelCollection.Builder()).setLevels(new Level[]{this.solverLevel}).build();
         this.application.setCollectionForPlaying(levelCollection);
         this.application.setLevelForPlaying(1);

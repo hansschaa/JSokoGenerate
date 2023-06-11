@@ -16,30 +16,12 @@ import jenes.chromosome.Chromosome;
 
 public class SokobanChromosome implements Chromosome<SokobanChromosome> {
     public char[][] genes;
-    public ArrayList<MyBoxData> boxDatas;
-    public int moves;
-    public int pushes;
 
     public SokobanChromosome(char[][] boardData, ArrayList<MyBoxData> boxDatas) {
         this.genes = boardData;
-        this.boxDatas = boxDatas;
     }
 
-    public void swap(int pos1, int pos2) {
-        System.out.println("swap");
-    }
 
-    public void leftShift(int from, int to) {
-        System.out.println("leftShift");
-    }
-
-    public void rightShift(int from, int to) {
-        System.out.println("rightShift");
-    }
-
-    public void setDefaultValueAt(int pos) {
-        System.out.println("setDefaultValueAt");
-    }
 
     public SokobanChromosome clone() {
         System.out.println("clone");
@@ -49,13 +31,7 @@ public class SokobanChromosome implements Chromosome<SokobanChromosome> {
             return new char[x$0][];
         });
         ArrayList<MyBoxData> boxDataCopy = new ArrayList();
-        Iterator var3 = this.boxDatas.iterator();
-
-        while(var3.hasNext()) {
-            MyBoxData boxData = (MyBoxData)var3.next();
-            boxDataCopy.add(new MyBoxData(boxData.goal, boxData.box, boxData.boxRoute, boxData.goalRouteIndex, boxData.boxRouteIndex));
-        }
-
+       
         return new SokobanChromosome(genesCopy, boxDataCopy);
     }
 
@@ -81,14 +57,13 @@ public class SokobanChromosome implements Chromosome<SokobanChromosome> {
     }
 
     public void ChangePlayerMutation() {
-        if (this.boxDatas.size() != 1) {
+        /*if (this.boxDatas.size() != 1) {
             this.ChangePlayer();
-        }
-
+        }*/
     }
 
     public void InvertMutation() {
-        if (this.boxDatas.size() != 1) {
+        /*if (this.boxDatas.size() != 1) {
             try {
                 int rand = Generator.random.nextInt(this.boxDatas.size());
                 PrintStream var10000 = System.out;
@@ -125,12 +100,12 @@ public class SokobanChromosome implements Chromosome<SokobanChromosome> {
                 var4.printStackTrace();
                 System.out.println();
             }
-        }
+        }*/
 
     }
 
     private boolean ChangePlayer() {
-        SokobanChromosomeUtils.WatchLevelSolver(this.genes, this.boxDatas.size());
+        /*SokobanChromosomeUtils.WatchLevelSolver(this.genes, this.boxDatas.size());
         ArrayList<Pair> whiteTiles = SokobanChromosomeUtils.GetTilesPosMatrix(new char[]{' ', '.'}, this.genes);
         if (whiteTiles.size() == 0) {
             System.out.println("Hay 0 tiles vacios");
@@ -176,11 +151,13 @@ public class SokobanChromosome implements Chromosome<SokobanChromosome> {
             } else {
                 return false;
             }
-        }
+        }*/
+        
+        return false;
     }
 
     public boolean Invert(MyBoxData boxData) {
-        System.out.println(boxData);
+        /*System.out.println(boxData);
         System.out.println("Invert antes");
         boxData.PrintValues();
         SokobanChromosomeUtils.PrintValue(this.genes);
@@ -217,11 +194,13 @@ public class SokobanChromosome implements Chromosome<SokobanChromosome> {
             }
         } else {
             return false;
-        }
+        }*/
+        
+        return false;
     }
 
     public void setAs(SokobanChromosome chromosome) {
-        System.out.println("setas");
+        /*System.out.println("setas");
         this.genes = (char[][])Arrays.stream(chromosome.genes).map((rec$) -> {
             return (char[])((char[])rec$).clone();
         }).toArray((x$0) -> {
@@ -233,7 +212,7 @@ public class SokobanChromosome implements Chromosome<SokobanChromosome> {
         while(var2.hasNext()) {
             MyBoxData boxData = (MyBoxData)var2.next();
             this.boxDatas.add(new MyBoxData(boxData.goal, boxData.box, boxData.boxRoute, boxData.goalRouteIndex, boxData.boxRouteIndex));
-        }
+        }*/
 
     }
 
@@ -293,7 +272,7 @@ public class SokobanChromosome implements Chromosome<SokobanChromosome> {
     }
 
     public void UCrossover(MyBoxData[] candidatesBoxDatas, SokobanChromosome destChromosome, SokobanChromosome sourceChromosome) {
-        System.out.println("UCrossover");
+        /*System.out.println("UCrossover");
         MyBoxData[] var5 = candidatesBoxDatas;
         int var6 = candidatesBoxDatas.length;
 
@@ -316,18 +295,18 @@ public class SokobanChromosome implements Chromosome<SokobanChromosome> {
         while(var9.hasNext()) {
             MyBoxData b = (MyBoxData)var9.next();
             b.PrintValues();
-        }
+        }*/
 
     }
 
     public void AddBox(SokobanChromosome sokobanChromosome, MyBoxData boxData) {
-        System.out.println("AddBox");
+        /*System.out.println("AddBox");
         sokobanChromosome.boxDatas.add(new MyBoxData(boxData.goal, boxData.box, boxData.boxRoute, boxData.goalRouteIndex, boxData.boxRouteIndex));
-        System.out.println("end AddBox");
+        System.out.println("end AddBox");*/
     }
 
     private void RemoveBox(SokobanChromosome sourceChromosome, MyBoxData candidatesBoxData) {
-        Iterator var3 = sourceChromosome.boxDatas.iterator();
+        /*Iterator var3 = sourceChromosome.boxDatas.iterator();
 
         while(var3.hasNext()) {
             MyBoxData boxData = (MyBoxData)var3.next();
@@ -361,7 +340,7 @@ public class SokobanChromosome implements Chromosome<SokobanChromosome> {
                 sourceChromosome.boxDatas.remove(boxData);
                 break;
             }
-        }
+        }*/
 
     }
 
@@ -396,11 +375,12 @@ public class SokobanChromosome implements Chromosome<SokobanChromosome> {
     }
 
     public int GetRandomBoxesCountToPass(SokobanChromosome chromosome) {
-        return chromosome.boxDatas.size() > 2 ? Generator.random.nextInt(chromosome.boxDatas.size() - 1) + 1 : Generator.random.nextInt(chromosome.boxDatas.size()) + 1;
+        //return chromosome.boxDatas.size() > 2 ? Generator.random.nextInt(chromosome.boxDatas.size() - 1) + 1 : Generator.random.nextInt(chromosome.boxDatas.size()) + 1;
+        return 0;
     }
 
     public MyBoxData[] GetRandomBoxData(SokobanChromosome chromosome, int r) {
-        MyBoxData[] temp = new MyBoxData[r];
+        /*MyBoxData[] temp = new MyBoxData[r];
 
         for(int i = 0; i < r; ++i) {
             int randomIndex = Generator.random.nextInt(chromosome.boxDatas.size());
@@ -408,7 +388,8 @@ public class SokobanChromosome implements Chromosome<SokobanChromosome> {
             temp[i] = new MyBoxData(bd.goal, bd.box, bd.boxRoute, bd.goalRouteIndex, bd.boxRouteIndex);
         }
 
-        return temp;
+        return temp;*/
+        return new MyBoxData[r];
     }
 
     public boolean equals(SokobanChromosome chromosome) {
@@ -438,5 +419,21 @@ public class SokobanChromosome implements Chromosome<SokobanChromosome> {
         System.out.println("GetBoxChanges");
         int total = 0;
         return total;
+    }
+    
+        public void swap(int pos1, int pos2) {
+        System.out.println("swap");
+    }
+
+    public void leftShift(int from, int to) {
+        System.out.println("leftShift");
+    }
+
+    public void rightShift(int from, int to) {
+        System.out.println("rightShift");
+    }
+
+    public void setDefaultValueAt(int pos) {
+        System.out.println("setDefaultValueAt");
     }
 }

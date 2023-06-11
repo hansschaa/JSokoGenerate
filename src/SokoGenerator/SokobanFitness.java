@@ -23,11 +23,11 @@ public class SokobanFitness extends Fitness<SokobanChromosome> {
 
     public void evaluate(Individual<SokobanChromosome> individual) {
         SokobanChromosome chromosome = (SokobanChromosome)individual.getChromosome();
-        this.solution = this.sokobanGA.GetSolution(chromosome.genes, chromosome.boxDatas.size());
+        this.solution = this.sokobanGA.GetSolution(chromosome.genes);
         int movesCount = this.application.movesHistory.getMovementsCount();
         int pushesCount = this.application.movesHistory.getPushesCount();
-        chromosome.moves = movesCount;
-        chromosome.pushes = pushesCount;
+        /*chromosome.moves = movesCount;
+        chromosome.pushes = pushesCount;*/
         individual.setScore(new double[]{(double)pushesCount});
     }
 }

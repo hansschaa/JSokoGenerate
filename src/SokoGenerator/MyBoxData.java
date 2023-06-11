@@ -79,7 +79,7 @@ public class MyBoxData {
     }
 
     private boolean PerformExchange(SokobanChromosome chromosome) {
-        char[][] newGenes = chromosome.UpdateGenes(this, chromosome.genes);
+        /*char[][] newGenes = chromosome.UpdateGenes(this, chromosome.genes);
         int boxesCount = SokobanChromosomeUtils.GetBoxCount(newGenes);
         SokobanChromosomeUtils.WatchLevelSolver(chromosome.genes, boxesCount);
         if (chromosome.boxDatas.size() + 1 != SokobanChromosomeUtils.GetBoxCount(newGenes)) {
@@ -98,7 +98,8 @@ public class MyBoxData {
                 System.out.println("else PerformExchange");
                 return false;
             }
-        }
+        }*/
+        return false;
     }
 
     public boolean CheckCollision(ArrayList<MyBoxData> boxDatas, TileTypes tileType) {

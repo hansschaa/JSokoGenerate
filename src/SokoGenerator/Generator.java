@@ -52,8 +52,6 @@ public class Generator {
     //Others
     public Thread generatorThread;
     
-    
-    
     public static ArrayList<SokoTree> sokoTrees = new ArrayList();
     public static ArrayList<Pair> goalCandidates;
     
@@ -66,6 +64,9 @@ public class Generator {
     public Generator(JSoko application) throws FileNotFoundException {
         Generator.application = application;
         System.out.println("Generator constructor");
+        
+        this.importedPopulation = new Population();
+        
         /*this.sokoBoard = new SokoBoard();
         this.importedPopulation = new Population();
         random = new Random();*/
@@ -215,10 +216,10 @@ public class Generator {
                     sb.append("\r\n");
                 }
 
-                int var10001 = ((SokobanChromosome)sc.getChromosome()).pushes;
+                /*int var10001 = ((SokobanChromosome)sc.getChromosome()).pushes;
                 sb.append("P: " + var10001 + "- M: " + ((SokobanChromosome)sc.getChromosome()).moves);
                 sb.append("\n");
-                sb.append("\n");
+                sb.append("\n");*/
             }
 
             sb.append("Total player mutation: " + totalMutationInvertPlayerCount + "\n");
