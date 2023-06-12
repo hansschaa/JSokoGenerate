@@ -17,7 +17,7 @@ import jenes.chromosome.Chromosome;
 public class SokobanChromosome implements Chromosome<SokobanChromosome> {
     public char[][] genes;
 
-    public SokobanChromosome(char[][] boardData, ArrayList<MyBoxData> boxDatas) {
+    public SokobanChromosome(char[][] boardData) {
         this.genes = boardData;
     }
 
@@ -32,7 +32,7 @@ public class SokobanChromosome implements Chromosome<SokobanChromosome> {
         });
         ArrayList<MyBoxData> boxDataCopy = new ArrayList();
        
-        return new SokobanChromosome(genesCopy, boxDataCopy);
+        return new SokobanChromosome(genesCopy);
     }
 
     public int length() {

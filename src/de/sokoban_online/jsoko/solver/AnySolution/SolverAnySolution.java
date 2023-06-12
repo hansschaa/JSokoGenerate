@@ -158,7 +158,7 @@ public final class SolverAnySolution extends Solver {
 			}
 
 			// Search for a solution.
-			isSolutionFound = forwardSearch();
+ 			isSolutionFound = forwardSearch();
 		}
 
 		// Display information about the result of the search.

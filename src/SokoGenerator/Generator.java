@@ -5,13 +5,18 @@
 
 package SokoGenerator;
 
+
 import SokoGenerator.SokoBoard.SokoBoard;
 import SokoGenerator.Tree.Pair;
 import SokoGenerator.Tree.SokoNode;
 import SokoGenerator.Tree.SokoTree;
 import de.sokoban_online.jsoko.JSoko;
+import de.sokoban_online.jsoko.leveldata.Level;
 import de.sokoban_online.jsoko.leveldata.LevelCollection;
 import de.sokoban_online.jsoko.leveldata.solutions.Solution;
+import de.sokoban_online.jsoko.solver.AnySolution.SolverAnySolution;
+import de.sokoban_online.jsoko.solver.SolverAStarPushesMoves;
+import de.sokoban_online.jsoko.solver.SolverGUI;
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
 import java.nio.file.Files;
@@ -37,11 +42,19 @@ public class Generator {
     public static Random random;
     
     //Parameters
-    private static final int P_MAX_GENERATIONS = 12;
-    private static final int P_MAX_INDIVIDUALS = 12;
+    private static final int P_MAX_GENERATIONS = 10;
+    private static final int P_MAX_INDIVIDUALS = 4;
     public static int P_MAX_BOXES;
-    public static char[][] P_BASE_BOARD;
+    public static final char[][] P_BASE_BOARD = {
+    {'#', '#', '#', '#', '#', '#', '#'},
+    {'#', ' ', ' ', ' ', ' ', ' ', '#'},
+    {'#', ' ', ' ', ' ', ' ', ' ', '#'},
+    {'#', ' ', ' ', ' ', ' ', ' ', '#'},
+    {'#', ' ', ' ', ' ', ' ', ' ', '#'},
+    {'#', ' ', ' ', ' ', ' ', ' ', '#'},
+    {'#', '#', '#', '#', '#', '#', '#'}};
     private Population<SokobanChromosome> importedPopulation;
+   
     
     //Stats
     public static int totalMutationInvertBoxCount;
@@ -51,7 +64,10 @@ public class Generator {
     
     //Others
     public Thread generatorThread;
-    
+    private static Level solverLevel;
+    public static SolverAStarPushesMoves optimalSolver;
+    public static SolverAnySolution anySolutionSolver;
+    public static SolverGUI solverGUI;
     public static ArrayList<SokoTree> sokoTrees = new ArrayList();
     public static ArrayList<Pair> goalCandidates;
     
@@ -63,15 +79,108 @@ public class Generator {
 
     public Generator(JSoko application) throws FileNotFoundException {
         Generator.application = application;
+        Generator.optimalSolver = new SolverAStarPushesMoves(application, new SolverGUI(application));
+        Generator.anySolutionSolver = new SolverAnySolution(application, new SolverGUI(application));
+        Generator.solverLevel = new Level(application.levelIO.database);
+        Generator.solverGUI = new SolverGUI(application);
+        random = new Random();
         System.out.println("Generator constructor");
         
-        this.importedPopulation = new Population();
+        this.importedPopulation = GetInitialPopulation();
+        System.out.println("termino");
+        for(Individual<SokobanChromosome> sc : this.importedPopulation){
+            GeneratorUtils.PrintCharArray(sc.getChromosome().genes);
+            System.out.println("\n");
+        }
         
         /*this.sokoBoard = new SokoBoard();
         this.importedPopulation = new Population();
         random = new Random();*/
     }
+    
+    private Population<SokobanChromosome> GetInitialPopulation() {
+        Population<SokobanChromosome> initialPopulation = new Population();
 
+        SokobanChromosome sokobanChromosome = null;
+        for(int i = 0 ; i < P_MAX_INDIVIDUALS ; i++){
+            do{
+            sokobanChromosome = GetRandomInitialSokobanChromosome();
+            
+            }while(GetSolution(sokobanChromosome.genes, false) == null);
+            
+            Individual<SokobanChromosome> individual = new Individual<SokobanChromosome>(sokobanChromosome);
+            initialPopulation.add(individual);
+        }
+        
+        
+        return initialPopulation;
+    }
+    
+    Solution GetSolution(char[][] genes, boolean optimal) {
+        //System.out.println("Get solution");
+        Generator.solverLevel.setBoardData(GeneratorUtils.ConvertCharArrayToString(genes));
+        //GeneratorUtils.PrintCharArray(genes);
+        Generator.solverLevel.setHeight(genes.length);
+        Generator.solverLevel.setWidth(genes[0].length);
+        Generator.solverLevel.setBoxCount(1);
+        LevelCollection levelCollection = (new LevelCollection.Builder()).setLevels(new Level[]{this.solverLevel}).build();
+        Generator.application.setCollectionForPlaying(levelCollection);
+        Generator.application.setLevelForPlaying(1);
+        Generator.application.currentLevel = Generator.solverLevel;
+        
+        Generator.anySolutionSolver = new SolverAnySolution(Generator.application, Generator.solverGUI);
+        Solution solution = anySolutionSolver.searchSolution();
+        
+        System.out.println("empezo");
+        GeneratorUtils.PrintCharArray(genes);
+        //GeneratorUtils.PrintCharArray(genes);
+        /*Solution solution = null;
+        try{
+        solution = anySolutionSolver.searchSolution();}
+        catch(Exception e){}
+        //System.out.println("termino");
+        
+       // while(!anySolutionSolver.getProgress() != 100){}
+        
+        
+        
+        if(solution == null){
+            System.out.println("No tiene solución");
+        }*/
+        
+        return solution;
+    }
+    
+    
+
+    private SokobanChromosome GetRandomInitialSokobanChromosome() {
+        
+        char[][] baseBoardClone = GeneratorUtils.CloneCharArray(P_BASE_BOARD);
+         
+        Pair boxPair = GetEmptySpacePair(baseBoardClone);
+        baseBoardClone[boxPair.i][boxPair.j] = '$';
+        
+        Pair goalPair = GetEmptySpacePair(baseBoardClone);
+        baseBoardClone[goalPair.i][goalPair.j] = '.';
+        
+        Pair playerPair = GetEmptySpacePair(baseBoardClone);
+        baseBoardClone[playerPair.i][playerPair.j] = '@';
+
+        SokobanChromosome newRandChromosome = new SokobanChromosome(baseBoardClone);
+        
+        return newRandChromosome;
+    }
+    
+    private Pair GetEmptySpacePair(char[][] board){
+        Pair pair = new Pair(0,0);
+        do{
+            pair.i = random.nextInt( P_BASE_BOARD.length );
+            pair.j = random.nextInt( P_BASE_BOARD[0].length );
+        }while(board[pair.i][pair.j] != ' ');
+        
+      return pair;
+    }
+    
     public void Init() throws FileNotFoundException {
         System.out.println("Init...");
         this.InitBoards();
@@ -245,7 +354,7 @@ public class Generator {
             ArrayList<Pair> boxRoute = sokoTree.boxRoute;
             ArrayList<MyBoxData> boxDatas = new ArrayList();
             boxDatas.add(new MyBoxData(goalPos, boxPos, boxRoute, boxRoute.size() - 1, 0));
-            SokobanChromosome sokoChromosome = new SokobanChromosome(sokoTree.genes, boxDatas);
+            SokobanChromosome sokoChromosome = new SokobanChromosome(sokoTree.genes);
             this.importedPopulation.add(new Individual(sokoChromosome, new double[0]));
         }
 
@@ -264,4 +373,6 @@ public class Generator {
 
         return genes;
     }
+
+
 }
