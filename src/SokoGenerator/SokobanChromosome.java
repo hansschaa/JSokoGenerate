@@ -46,104 +46,107 @@ public class SokobanChromosome implements Chromosome<SokobanChromosome> {
     public void randomize(int pos) {
         switch (pos) {
             case 0 -> {
-                ++Generator.totalMutationInvertBoxCount;
+                Generator.totalChangeBoxOrGoalCount++;
                 this.ChangeBoxOrGoal();
             }
             case 1 -> {
-                ++Generator.totalMutationInvertPlayerCount;
+                Generator.totalChangePlayerMutationCount++;
                 this.ChangePlayer();
             }
         }
 
     }
 
-    public void ChangePlayerMutation() {
+    public void ChangeBoxOrGoal() {
+        
+        //Clone current board state
+        char[][] cloneBoard = GeneratorUtils.CloneCharArray(genes);
+        
+        //Change box or goal?
+        int boxOrGoalChoice = 0;
+        boxOrGoalChoice = Generator.random.nextInt(2);
+         
+        //Get max boxes
+        int maxBoxesOrGoals = GeneratorUtils.CountCharacters(boxOrGoalChoice == 0 ? 1 : 2, cloneBoard);
+        int id = Generator.random.nextInt(maxBoxesOrGoals); 
+       
+        //Find Box or goal
+        Pair boxOrGoalPair = GeneratorUtils.FindCharacterPairIndexBased(cloneBoard, boxOrGoalChoice == 0 ? 1 : 2,id);
+        
+        //Find a new place
+        Pair newBoxOrGoalPair = GeneratorUtils.GetEmptySpacePair(cloneBoard);
+        
+        //Update board
+        if(boxOrGoalChoice == 0){
+            if(cloneBoard[boxOrGoalPair.i][boxOrGoalPair.j] == '*')
+                cloneBoard[boxOrGoalPair.i][boxOrGoalPair.j] = '.';
+            else
+                cloneBoard[boxOrGoalPair.i][boxOrGoalPair.j] = ' ';
+                
+            cloneBoard[newBoxOrGoalPair.i][newBoxOrGoalPair.j] = '$';
+        }
+        
+        else if(boxOrGoalChoice == 1){
+            if(cloneBoard[boxOrGoalPair.i][boxOrGoalPair.j] == '*')
+                cloneBoard[boxOrGoalPair.i][boxOrGoalPair.j] = '$';
+            else
+                cloneBoard[boxOrGoalPair.i][boxOrGoalPair.j] = ' ';
+                
+            cloneBoard[newBoxOrGoalPair.i][newBoxOrGoalPair.j] = '.';
+        }
+        
+        //Effective mutation
+        if(Generator.GetSolution(cloneBoard, false, maxBoxesOrGoals) != null){
+            if(boxOrGoalChoice == 0){
+                if(genes[boxOrGoalPair.i][boxOrGoalPair.j] == '*')
+                    genes[boxOrGoalPair.i][boxOrGoalPair.j] = '.';
+                else
+                    genes[boxOrGoalPair.i][boxOrGoalPair.j] = ' ';
+
+                genes[newBoxOrGoalPair.i][newBoxOrGoalPair.j] = '$';
+            }
+
+            else if(boxOrGoalChoice == 1){
+                if(genes[boxOrGoalPair.i][boxOrGoalPair.j] == '*')
+                    genes[boxOrGoalPair.i][boxOrGoalPair.j] = '$';
+                else
+                    genes[boxOrGoalPair.i][boxOrGoalPair.j] = ' ';
+
+                genes[newBoxOrGoalPair.i][newBoxOrGoalPair.j] = '.';
+            }
+        }
+    }
+
+    private void ChangePlayer() {
         
         char[][] cloneBoard = GeneratorUtils.CloneCharArray(genes);
         
         //Find player
-        Pair playerPos = GeneratorUtils.FindCharacterPair(genes, '@');
+        Pair playerPos = GeneratorUtils.FindCharacterPairIndexBased(genes, 0,0);
         
         //Find a new place
         Pair newPlayerPlace = GeneratorUtils.GetEmptySpacePair(genes);
         
         //Update board
-        cloneBoard[playerPos.i][playerPos.j] = ' ';
+        if(cloneBoard[playerPos.i][playerPos.j] == '+')
+            cloneBoard[playerPos.i][playerPos.j] = '.';
+        else
+            cloneBoard[playerPos.i][playerPos.j] = ' ';
+        
         cloneBoard[newPlayerPlace.i][newPlayerPlace.j] = '@';
         
-        if(Generator.GetSolution(genes, true, 2) != null){
+        int boxesCount = GeneratorUtils.CountCharacters(1, cloneBoard);
+        
+        //Effective mutation
+        if(Generator.GetSolution(cloneBoard, false, boxesCount) != null){
+            //Update board
+            if(genes[playerPos.i][playerPos.j] == '+')
+                genes[playerPos.i][playerPos.j] = '.';
+            else
+                genes[playerPos.i][playerPos.j] = ' ';
             
+            genes[newPlayerPlace.i][newPlayerPlace.j] = '@';
         }
-    }
-
-    public void ChangeBoxOrGoal() {
-        //Find player
-        Pair playerPos = GeneratorUtils.FindCharacterPair(genes, '@');
-        
-        //Find a new place
-        Pair newPlayerPlace = GeneratorUtils.GetEmptySpacePair(genes);
-        
-        //Update board
-        genes[playerPos.i][playerPos.j] = ' ';
-        genes[newPlayerPlace.i][newPlayerPlace.j] = '@';
-
-    }
-
-    private boolean ChangePlayer() {
-        
-        
-        
-        
-        
-        /*SokobanChromosomeUtils.WatchLevelSolver(this.genes, this.boxDatas.size());
-        ArrayList<Pair> whiteTiles = SokobanChromosomeUtils.GetTilesPosMatrix(new char[]{' ', '.'}, this.genes);
-        if (whiteTiles.size() == 0) {
-            System.out.println("Hay 0 tiles vacios");
-            return false;
-        } else {
-            Pair playerPos = SokobanChromosomeUtils.GetPlayerPos(this.genes);
-            int randomNum = Generator.random.nextInt(whiteTiles.size());
-            Pair newPos = (Pair)whiteTiles.get(randomNum);
-            char[][] newGenes = (char[][])Arrays.stream(this.genes).map((rec$) -> {
-                return (char[])((char[])rec$).clone();
-            }).toArray((x$0) -> {
-                return new char[x$0][];
-            });
-            if (newGenes[playerPos.i][playerPos.j] == '+') {
-                newGenes[playerPos.i][playerPos.j] = '.';
-            } else if (newGenes[playerPos.i][playerPos.j] == '@') {
-                newGenes[playerPos.i][playerPos.j] = ' ';
-            }
-
-            if (newGenes[newPos.i][newPos.j] == '.') {
-                newGenes[newPos.i][newPos.j] = '+';
-            } else if (newGenes[newPos.i][newPos.j] == ' ') {
-                newGenes[newPos.i][newPos.j] = '@';
-            }
-
-            Solution sol = Generator.sokobanGA.GetAnySolution(newGenes, this.boxDatas.size());
-            if (sol != null) {
-                ++Generator.effectiveInvertPlayerMutation;
-                if (this.genes[playerPos.i][playerPos.j] == '+') {
-                    this.genes[playerPos.i][playerPos.j] = '.';
-                } else if (this.genes[playerPos.i][playerPos.j] == '@') {
-                    this.genes[playerPos.i][playerPos.j] = ' ';
-                }
-
-                if (this.genes[newPos.i][newPos.j] == '.') {
-                    this.genes[newPos.i][newPos.j] = '+';
-                } else if (this.genes[newPos.i][newPos.j] == ' ') {
-                    this.genes[newPos.i][newPos.j] = '@';
-                }
-
-                SokobanChromosomeUtils.WatchLevelSolver(this.genes, this.boxDatas.size());
-                return true;
-            } else {
-                return false;
-            }
-        }*/
-        
-        return false;
     }
 
     public boolean Invert(MyBoxData boxData) {

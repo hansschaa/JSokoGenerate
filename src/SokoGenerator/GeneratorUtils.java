@@ -8,6 +8,7 @@ import static SokoGenerator.Generator.P_BASE_BOARD;
 import static SokoGenerator.Generator.random;
 import SokoGenerator.Tree.Pair;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -15,6 +16,11 @@ import java.util.List;
  * @author Hans
  */
 public class GeneratorUtils {
+    
+    private static final ArrayList<Character> playerChars = new ArrayList<>(Arrays.asList('@', '+'));
+    private static final ArrayList<Character> boxChars = new ArrayList<>(Arrays.asList('$', '*'));
+    private static final ArrayList<Character> goalChars = new ArrayList<>(Arrays.asList('*', '.'));
+
     public static String ConvertCharArrayToString(char[][] charArray) {
         StringBuilder sb = new StringBuilder();
 
@@ -61,17 +67,31 @@ public class GeneratorUtils {
         return pair;
     }
     
-    public static Pair FindCharacterPair(char[][] board, char character) {
+    public static Pair FindCharacterPairIndexBased(char[][] board, int characterID, int specificCount) {
         int rows = board.length;
         int columns = board[0].length;
         
         Pair pair = new Pair(0,0);
+        int currentCount = 0;
+        
+        ArrayList<Character> chars = null;
+        switch(characterID){
+            case 0 -> chars = playerChars;
+            case 1 -> chars = boxChars;
+            case 2 -> chars = goalChars;
+        }
 
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < columns; j++) {
-                if (board[i][j] == character) {
-                    pair.i = i; pair.j = j;
-                    return pair; // Terminar la función o realizar otras acciones necesarias
+                char currentChar = board[i][j];
+                if (chars.contains(currentChar)) {
+                    if(currentCount == specificCount){
+                        pair.i = i;
+                        pair.j = j;
+                        return pair;
+                    }
+                    
+                    currentCount++;
                 }
             }
         }
@@ -81,15 +101,23 @@ public class GeneratorUtils {
         return null;
     }
     
-    public static int countCharacters(ArrayList<Character> characters, char[][] board) {
+    //ID 0: Player, ID 1: Boxes, ID 2: Goals
+    public static int CountCharacters(int characterID, char[][] board) {
         int rows = board.length;
         int columns = board[0].length;
         int count = 0;
         
+        ArrayList<Character> chars = null;
+        switch(characterID){
+            case 0 -> chars = playerChars;
+            case 1 -> chars = boxChars;
+            case 2 -> chars = goalChars;
+        }
+        
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < columns; j++) {
                 char currentChar = board[i][j];
-                if (characters.contains(currentChar)) {
+                if (chars.contains(currentChar)) {
                     count++;
                 }
             }

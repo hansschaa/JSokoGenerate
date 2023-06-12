@@ -25,9 +25,9 @@ public class SokobanFitness extends Fitness<SokobanChromosome> {
     public void evaluate(Individual<SokobanChromosome> individual) {
         SokobanChromosome chromosome = (SokobanChromosome)individual.getChromosome();
         
+        int boxCount = GeneratorUtils.CountCharacters(1, chromosome.genes);
         
-        
-        this.solution = Generator.GetSolution(chromosome.genes, false);
+        this.solution = Generator.GetSolution(chromosome.genes, false,boxCount);
         individual.setScore(solution.lurd.length());
       
         //int movesCount = this.application.movesHistory.getMovementsCount();
