@@ -7,16 +7,14 @@ package SokoGenerator;
 
 
 import SokoGenerator.Tree.Pair;
-import de.sokoban_online.jsoko.leveldata.solutions.Solution;
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import jenes.chromosome.Chromosome;
 
 public class SokobanChromosome implements Chromosome<SokobanChromosome> {
     public char[][] genes;
-
+    public int fitnessValue;
+    
     public SokobanChromosome(char[][] boardData) {
         this.genes = boardData;
     }

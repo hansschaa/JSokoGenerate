@@ -25,8 +25,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 import java.util.Random;
 import jenes.GeneticAlgorithm;
@@ -42,8 +45,8 @@ public class Generator {
     public static Random random;
     
     //Parameters
-    private static final int P_MAX_GENERATIONS = 10;
-    private static final int P_MAX_INDIVIDUALS = 4;
+    private static final int P_MAX_GENERATIONS = 20;
+    private static final int P_MAX_INDIVIDUALS = 12;
     public static int P_MAX_BOXES;
     public static final char[][] P_BASE_BOARD = {
     {'#', '#', '#', '#', '#', '#', '#'},
@@ -53,8 +56,8 @@ public class Generator {
     {'#', ' ', ' ', ' ', ' ', ' ', '#'},
     {'#', ' ', ' ', ' ', ' ', ' ', '#'},
     {'#', '#', '#', '#', '#', '#', '#'}};
-    private Population<SokobanChromosome> importedPopulation;
-   
+    private static Population<SokobanChromosome> importedPopulation;
+    private ArrayList<SokobanChromosome> sokobanChromosomeList;
     
     //Stats
     public static int totalMutationInvertBoxCount;
@@ -65,8 +68,7 @@ public class Generator {
     //Others
     public Thread generatorThread;
     private static Level solverLevel;
-    public static SolverAStarPushesMoves optimalSolver;
-    public static SolverAnySolution anySolutionSolver;
+    public static Solution sol;
     public static SolverGUI solverGUI;
     public static ArrayList<SokoTree> sokoTrees = new ArrayList();
     public static ArrayList<Pair> goalCandidates;
@@ -79,19 +81,47 @@ public class Generator {
 
     public Generator(JSoko application) throws FileNotFoundException {
         Generator.application = application;
-        Generator.optimalSolver = new SolverAStarPushesMoves(application, new SolverGUI(application));
-        Generator.anySolutionSolver = new SolverAnySolution(application, new SolverGUI(application));
+        //Generator.optimalSolver = new SolverAStarPushesMoves(application, new SolverGUI(application));
+        //Generator.anySolutionSolver = new SolverAnySolution(application, new SolverGUI(application));
         Generator.solverLevel = new Level(application.levelIO.database);
         Generator.solverGUI = new SolverGUI(application);
+        Generator.importedPopulation = new Population<>();
         random = new Random();
-        System.out.println("Generator constructor");
+        sokobanChromosomeList = new ArrayList<>();
         
-        this.importedPopulation = GetInitialPopulation();
-        System.out.println("termino");
-        for(Individual<SokobanChromosome> sc : this.importedPopulation){
+        Generator.solverLevel.setHeight(P_BASE_BOARD.length);
+        Generator.solverLevel.setWidth(P_BASE_BOARD[0].length);
+        
+        GetInitialPopulation();
+        // Ordenar el ArrayList de cromosomas por fitness de mayor a menor
+        Collections.sort(sokobanChromosomeList, new Comparator<SokobanChromosome>() {
+            @Override
+            public int compare(SokobanChromosome c1, SokobanChromosome c2) {
+                // Comparar los valores de fitness de los cromosomas en orden descendente
+                return Double.compare(c2.fitnessValue, c1.fitnessValue);
+            }
+        });
+        
+        List<SokobanChromosome> topTierSokobanChromosomeList = sokobanChromosomeList.subList(0, 
+                Math.min(P_MAX_INDIVIDUALS, sokobanChromosomeList.size()));
+        sokobanChromosomeList = null;
+        
+        //GC
+        System.gc();
+        System.runFinalization();
+        Runtime.getRuntime().gc();
+        
+        //Setup the 
+        for(SokobanChromosome sc : topTierSokobanChromosomeList)
+            importedPopulation.add(new Individual<SokobanChromosome>(sc));
+        
+        System.out.println("Población inicial");
+        for(Individual<SokobanChromosome> sc : Generator.importedPopulation){
             GeneratorUtils.PrintCharArray(sc.getChromosome().genes);
+            System.out.println("fitness: " + sc.getChromosome().fitnessValue);
             System.out.println("\n");
         }
+        
         
         /*this.sokoBoard = new SokoBoard();
         this.importedPopulation = new Population();
@@ -102,53 +132,45 @@ public class Generator {
         Population<SokobanChromosome> initialPopulation = new Population();
 
         SokobanChromosome sokobanChromosome = null;
-        for(int i = 0 ; i < P_MAX_INDIVIDUALS ; i++){
+        Solution solution = null; 
+        
+        int notSolutionCount = 0;
+        int totalAttempts = 60;
+        
+        for(int i = 0 ; i < totalAttempts ; i++){
             do{
-            sokobanChromosome = GetRandomInitialSokobanChromosome();
+                sokobanChromosome = GetRandomInitialSokobanChromosome();
+                solution = GetSolution(sokobanChromosome.genes, false);
+                if(solution == null)
+                    notSolutionCount++;
+   
+            }while(solution == null);
+
+            sokobanChromosome.fitnessValue = solution.lurd.length();
+            sokobanChromosomeList.add(sokobanChromosome);
             
-            }while(GetSolution(sokobanChromosome.genes, false) == null);
-            
-            Individual<SokobanChromosome> individual = new Individual<SokobanChromosome>(sokobanChromosome);
-            initialPopulation.add(individual);
+            solution = null;
         }
         
+        System.out.println("Sin solución totales: " + notSolutionCount);
+        System.out.println("Total: " + totalAttempts);
         
         return initialPopulation;
     }
     
     Solution GetSolution(char[][] genes, boolean optimal) {
-        //System.out.println("Get solution");
+
         Generator.solverLevel.setBoardData(GeneratorUtils.ConvertCharArrayToString(genes));
-        //GeneratorUtils.PrintCharArray(genes);
-        Generator.solverLevel.setHeight(genes.length);
-        Generator.solverLevel.setWidth(genes[0].length);
         Generator.solverLevel.setBoxCount(1);
         LevelCollection levelCollection = (new LevelCollection.Builder()).setLevels(new Level[]{this.solverLevel}).build();
         Generator.application.setCollectionForPlaying(levelCollection);
         Generator.application.setLevelForPlaying(1);
         Generator.application.currentLevel = Generator.solverLevel;
         
-        Generator.anySolutionSolver = new SolverAnySolution(Generator.application, Generator.solverGUI);
-        Solution solution = anySolutionSolver.searchSolution();
+        //Generator.anySolutionSolver = any//new SolverAnySolution(Generator.application, Generator.solverGUI);
+        Generator.sol = new SolverAnySolution(Generator.application, Generator.solverGUI).searchSolution();
         
-        System.out.println("empezo");
-        GeneratorUtils.PrintCharArray(genes);
-        //GeneratorUtils.PrintCharArray(genes);
-        /*Solution solution = null;
-        try{
-        solution = anySolutionSolver.searchSolution();}
-        catch(Exception e){}
-        //System.out.println("termino");
-        
-       // while(!anySolutionSolver.getProgress() != 100){}
-        
-        
-        
-        if(solution == null){
-            System.out.println("No tiene solución");
-        }*/
-        
-        return solution;
+        return Generator.sol;
     }
     
     
