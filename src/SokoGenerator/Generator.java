@@ -47,6 +47,8 @@ public class Generator {
     //Parameters
     private static final int P_MAX_GENERATIONS = 20;
     private static final int P_MAX_INDIVIDUALS = 12;
+    private static final int P_TOURNAMENT_ATTEMPS = 1;
+    private static final float P_CROSSOVER_PROB = 0.9f;
     public static int P_MAX_BOXES;
     public static final char[][] P_BASE_BOARD = {
     {'#', '#', '#', '#', '#', '#', '#'},
@@ -60,10 +62,10 @@ public class Generator {
     private ArrayList<SokobanChromosome> sokobanChromosomeList;
     
     //Stats
-    public static int totalMutationInvertBoxCount;
-    public static int effectiveInvertBoxMutation;
-    public static int totalMutationInvertPlayerCount;
-    public static int effectiveInvertPlayerMutation;
+    public static int totalChangeBoxOrGoalCount;
+    public static int totalChangePlayerMutationCount;
+    public static int effectiveChangeBoxOrGoalCount;
+    public static int effectiveChangePlayerMutation;
     
     //Others
     public Thread generatorThread;
@@ -72,8 +74,8 @@ public class Generator {
     public static SolverGUI solverGUI;
     public static ArrayList<SokoTree> sokoTrees = new ArrayList();
     public static ArrayList<Pair> goalCandidates;
+    public static LevelCollection levelCollection;
     
-    public LevelCollection levelCollection;
     public SokoBoard sokoBoard;
     
     Queue<Pair> queue = new LinkedList();
@@ -121,11 +123,8 @@ public class Generator {
             System.out.println("fitness: " + sc.getChromosome().fitnessValue);
             System.out.println("\n");
         }
-        
-        
-        /*this.sokoBoard = new SokoBoard();
-        this.importedPopulation = new Population();
-        random = new Random();*/
+
+        RunGA();
     }
     
     private Population<SokobanChromosome> GetInitialPopulation() {
@@ -140,7 +139,7 @@ public class Generator {
         for(int i = 0 ; i < totalAttempts ; i++){
             do{
                 sokobanChromosome = GetRandomInitialSokobanChromosome();
-                solution = GetSolution(sokobanChromosome.genes, false);
+                solution = GetSolution(sokobanChromosome.genes, false, 1);
                 if(solution == null)
                     notSolutionCount++;
    
@@ -158,11 +157,11 @@ public class Generator {
         return initialPopulation;
     }
     
-    Solution GetSolution(char[][] genes, boolean optimal) {
+    static Solution GetSolution(char[][] genes, boolean optimal, int boxCount) {
 
         Generator.solverLevel.setBoardData(GeneratorUtils.ConvertCharArrayToString(genes));
-        Generator.solverLevel.setBoxCount(1);
-        LevelCollection levelCollection = (new LevelCollection.Builder()).setLevels(new Level[]{this.solverLevel}).build();
+        Generator.solverLevel.setBoxCount(boxCount);
+        Generator.levelCollection = (new LevelCollection.Builder()).setLevels(new Level[]{Generator.solverLevel}).build();
         Generator.application.setCollectionForPlaying(levelCollection);
         Generator.application.setLevelForPlaying(1);
         Generator.application.currentLevel = Generator.solverLevel;
@@ -172,43 +171,32 @@ public class Generator {
         
         return Generator.sol;
     }
-    
-    
 
     private SokobanChromosome GetRandomInitialSokobanChromosome() {
         
         char[][] baseBoardClone = GeneratorUtils.CloneCharArray(P_BASE_BOARD);
          
-        Pair boxPair = GetEmptySpacePair(baseBoardClone);
+        Pair boxPair = GeneratorUtils.GetEmptySpacePair(baseBoardClone);
         baseBoardClone[boxPair.i][boxPair.j] = '$';
         
-        Pair goalPair = GetEmptySpacePair(baseBoardClone);
+        Pair goalPair = GeneratorUtils.GetEmptySpacePair(baseBoardClone);
         baseBoardClone[goalPair.i][goalPair.j] = '.';
         
-        Pair playerPair = GetEmptySpacePair(baseBoardClone);
+        Pair playerPair = GeneratorUtils.GetEmptySpacePair(baseBoardClone);
         baseBoardClone[playerPair.i][playerPair.j] = '@';
 
         SokobanChromosome newRandChromosome = new SokobanChromosome(baseBoardClone);
         
         return newRandChromosome;
     }
-    
-    private Pair GetEmptySpacePair(char[][] board){
-        Pair pair = new Pair(0,0);
-        do{
-            pair.i = random.nextInt( P_BASE_BOARD.length );
-            pair.j = random.nextInt( P_BASE_BOARD[0].length );
-        }while(board[pair.i][pair.j] != ' ');
-        
-      return pair;
-    }
+
     
     public void Init() throws FileNotFoundException {
         System.out.println("Init...");
         this.InitBoards();
-        if (!this.RunGA()) {
+        /*if (!this.RunGA()) {
             this.Init();
-        }
+        }*/
 
     }
 
@@ -217,10 +205,21 @@ public class Generator {
         this.sokoBoard.GenerateLevels();
     }
 
-    public boolean RunGA() {
+    public void RunGA() {
         System.out.println("----> Run GA....");
-        /*sokobanGA = new SokobanGA(this.importedPopulation, 12, application, this);
-        boardBase = (char[][])this.sokoBoard.levels.get(0);
+        sokobanGA = new SokobanGA(Generator.importedPopulation, P_MAX_GENERATIONS, application, this);
+        
+        SetupEvolutionaryAlgorithm();
+        
+        this.generatorThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Generator.sokobanGA.evolve();
+            }
+        });
+        this.generatorThread.start();
+        
+        /*boardBase = (char[][])this.sokoBoard.levels.get(0);
         this.Preprocess();
         if (sokoTrees.size() == 0) {
             return false;
@@ -251,10 +250,21 @@ public class Generator {
             this.generatorThread.start();
             return true;
         }*/
-        
-        return true;
     }
 
+    
+    private void SetupEvolutionaryAlgorithm() {
+        AbstractStage<SokobanChromosome> selection = new TournamentSelector(Generator.P_TOURNAMENT_ATTEMPS);
+        AbstractStage<SokobanChromosome> crossover = new SokoCrossover(P_CROSSOVER_PROB);
+        AbstractStage<SokobanChromosome> InvertBoxGoalMutation = new InvertBoxGoalPosMutator(0.4);
+        AbstractStage<SokobanChromosome> ChangePlayerPosMutation = new ChangePlayerPosMutator(0.25);
+        sokobanGA.addStage(selection);
+        sokobanGA.addStage(crossover);
+        sokobanGA.addStage(InvertBoxGoalMutation);
+        sokobanGA.addStage(ChangePlayerPosMutation);
+        sokobanGA.setElitism(1);
+    }
+    
     private void Preprocess() {
         /*goalCandidates = SokobanChromosomeUtils.GetTilesPosMatrix(' ', boardBase);
         double maxInitialStates = Math.ceil((double)(goalCandidates.size() / 2));
@@ -353,10 +363,10 @@ public class Generator {
                 sb.append("\n");*/
             }
 
-            sb.append("Total player mutation: " + totalMutationInvertPlayerCount + "\n");
-            sb.append("Effective player mutation: " + effectiveInvertPlayerMutation + "\n");
-            sb.append("Total box invert mutation: " + totalMutationInvertBoxCount + "\n");
-            sb.append("Effective box invert mutation: " + effectiveInvertBoxMutation + "\n");
+            sb.append("Total player mutation: " + totalChangeBoxOrGoalCount + "\n");
+            sb.append("Effective player mutation: " + effectiveChangeBoxOrGoalCount + "\n");
+            sb.append("Total box invert mutation: " + totalChangePlayerMutationCount + "\n");
+            sb.append("Effective box invert mutation: " + effectiveChangePlayerMutation + "\n");
             Path path = Paths.get("C:\\Users\\hansschaa\\Desktop\\SokoResults.txt");
             Files.write(path, sb.toString().getBytes(), new OpenOption[0]);
         } catch (Exception var11) {
@@ -395,6 +405,4 @@ public class Generator {
 
         return genes;
     }
-
-
 }

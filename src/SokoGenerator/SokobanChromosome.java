@@ -37,72 +37,64 @@ public class SokobanChromosome implements Chromosome<SokobanChromosome> {
         return this.genes.length * this.genes[0].length;
     }
 
+    @Override
     public void randomize() {
         System.out.println("randomize 2");
     }
 
+    @Override
     public void randomize(int pos) {
         switch (pos) {
-            case 0:
+            case 0 -> {
                 ++Generator.totalMutationInvertBoxCount;
-                this.InvertMutation();
-                break;
-            case 1:
+                this.ChangeBoxOrGoal();
+            }
+            case 1 -> {
                 ++Generator.totalMutationInvertPlayerCount;
                 this.ChangePlayer();
+            }
         }
 
     }
 
     public void ChangePlayerMutation() {
-        /*if (this.boxDatas.size() != 1) {
-            this.ChangePlayer();
-        }*/
+        
+        char[][] cloneBoard = GeneratorUtils.CloneCharArray(genes);
+        
+        //Find player
+        Pair playerPos = GeneratorUtils.FindCharacterPair(genes, '@');
+        
+        //Find a new place
+        Pair newPlayerPlace = GeneratorUtils.GetEmptySpacePair(genes);
+        
+        //Update board
+        cloneBoard[playerPos.i][playerPos.j] = ' ';
+        cloneBoard[newPlayerPlace.i][newPlayerPlace.j] = '@';
+        
+        if(Generator.GetSolution(genes, true, 2) != null){
+            
+        }
     }
 
-    public void InvertMutation() {
-        /*if (this.boxDatas.size() != 1) {
-            try {
-                int rand = Generator.random.nextInt(this.boxDatas.size());
-                PrintStream var10000 = System.out;
-                Object var10001 = this.boxDatas.get(rand);
-                var10000.println("ANTES - Cambiando la caja número: " + var10001);
-                System.out.println("BoxDatas del cromosoma:");
-                Iterator var2 = this.boxDatas.iterator();
-
-                MyBoxData b;
-                while(var2.hasNext()) {
-                    b = (MyBoxData)var2.next();
-                    b.PrintValues();
-                    System.out.println();
-                }
-
-                if (this.Invert((MyBoxData)this.boxDatas.get(rand))) {
-                    ++Generator.effectiveInvertBoxMutation;
-                    var10000 = System.out;
-                    var10001 = this.boxDatas.get(rand);
-                    var10000.println("DESPUES - Cambiando la caja número: " + var10001);
-                    System.out.println("BoxDatas del cromosoma:");
-                    var2 = this.boxDatas.iterator();
-
-                    while(var2.hasNext()) {
-                        b = (MyBoxData)var2.next();
-                        b.PrintValues();
-                        System.out.println();
-                    }
-
-                    System.out.println("Fin Invert success");
-                }
-            } catch (Exception var4) {
-                System.out.println(var4);
-                var4.printStackTrace();
-                System.out.println();
-            }
-        }*/
+    public void ChangeBoxOrGoal() {
+        //Find player
+        Pair playerPos = GeneratorUtils.FindCharacterPair(genes, '@');
+        
+        //Find a new place
+        Pair newPlayerPlace = GeneratorUtils.GetEmptySpacePair(genes);
+        
+        //Update board
+        genes[playerPos.i][playerPos.j] = ' ';
+        genes[newPlayerPlace.i][newPlayerPlace.j] = '@';
 
     }
 
     private boolean ChangePlayer() {
+        
+        
+        
+        
+        
         /*SokobanChromosomeUtils.WatchLevelSolver(this.genes, this.boxDatas.size());
         ArrayList<Pair> whiteTiles = SokobanChromosomeUtils.GetTilesPosMatrix(new char[]{' ', '.'}, this.genes);
         if (whiteTiles.size() == 0) {

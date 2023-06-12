@@ -12,22 +12,28 @@ import jenes.population.Individual;
 
 public class SokobanFitness extends Fitness<SokobanChromosome> {
     private JSoko application;
-    private SokobanGA sokobanGA;
+    private Generator generator;
     private Solution solution;
 
-    public SokobanFitness(boolean maximize, JSoko application, SokobanGA sokobanGA) {
+    public SokobanFitness(boolean maximize, JSoko application, Generator generator) {
         super(new boolean[]{maximize});
         this.application = application;
-        this.sokobanGA = sokobanGA;
+        this.generator = generator;
     }
 
+    @Override
     public void evaluate(Individual<SokobanChromosome> individual) {
         SokobanChromosome chromosome = (SokobanChromosome)individual.getChromosome();
-        this.solution = this.sokobanGA.GetSolution(chromosome.genes);
-        int movesCount = this.application.movesHistory.getMovementsCount();
-        int pushesCount = this.application.movesHistory.getPushesCount();
+        
+        
+        
+        this.solution = Generator.GetSolution(chromosome.genes, false);
+        individual.setScore(solution.lurd.length());
+      
+        //int movesCount = this.application.movesHistory.getMovementsCount();
+        //int pushesCount = this.application.movesHistory.getPushesCount();
         /*chromosome.moves = movesCount;
         chromosome.pushes = pushesCount;*/
-        individual.setScore(new double[]{(double)pushesCount});
+        
     }
 }

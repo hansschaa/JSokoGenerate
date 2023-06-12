@@ -27,8 +27,11 @@ public class SokobanGA extends GeneticAlgorithm<SokobanChromosome> implements Ge
 
     public SokobanGA(Population<SokobanChromosome> importedPopulation, int GENERATION_LIMIT, JSoko application, Generator generator) {
         super(importedPopulation, GENERATION_LIMIT);
-        this.sokobanFitness = new SokobanFitness(true, application, this);
+        
+        //Setup fitness
+        this.sokobanFitness = new SokobanFitness(true, application, generator);
         this.setFitness(this.sokobanFitness);
+        
         this.application = application;
         this.generator = generator;
         this.solverLevel = new Level(application.levelIO.database);
@@ -56,33 +59,5 @@ public class SokobanGA extends GeneticAlgorithm<SokobanChromosome> implements Ge
         var10000 = System.out;
         var10001 = legals.getMean();
         var10000.println("\tAvg score : " + var10001[0]);
-    }
-
-    Solution GetSolution(char[][] genes) {
-        this.solverLevel.setBoardData(genes.toString());
-        this.solverLevel.setHeight(genes.length);
-        this.solverLevel.setWidth(genes[0].length);
-        //this.solverLevel.setBoxCount(boxCount);
-        LevelCollection levelCollection = (new LevelCollection.Builder()).setLevels(new Level[]{this.solverLevel}).build();
-        this.application.setCollectionForPlaying(levelCollection);
-        this.application.setLevelForPlaying(1);
-        this.application.currentLevel = this.solverLevel;
-        this.solver = new SolverAStarPushesMoves(this.application, new SolverGUI(this.application));
-        Solution solution = this.solver.searchSolution();
-        return solution;
-    }
-
-    Solution GetAnySolution(char[][] genes, int boxCount) {
-        this.solverLevel.setBoardData(genes.toString());
-        this.solverLevel.setHeight(genes.length);
-        this.solverLevel.setWidth(genes[0].length);
-        this.solverLevel.setBoxCount(boxCount);
-        LevelCollection levelCollection = (new LevelCollection.Builder()).setLevels(new Level[]{this.solverLevel}).build();
-        this.application.setCollectionForPlaying(levelCollection);
-        this.application.setLevelForPlaying(1);
-        this.application.currentLevel = this.solverLevel;
-        this.solver = new SolverAnySolution(this.application, new SolverGUI(this.application));
-        Solution solution = this.solver.searchSolution();
-        return solution;
     }
 }
