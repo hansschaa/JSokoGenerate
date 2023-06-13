@@ -13,17 +13,19 @@
             <file>file:/C:/Users/Hans/Documents/NetBeansProjects/JavaApplication4/src/de/sokoban_online/jsoko/JSoko.java</file>
             <file>file:/C:/Users/Hans/Documents/NetBeansProjects/JavaApplication4/src/de/sokoban_online/jsoko/gui/BoardDisplay.java</file>
             <file>file:/C:/Users/Hans/Documents/NetBeansProjects/JavaApplication4/src/SokoGenerator/Generator.java</file>
+            <file>file:/C:/Users/Hans/Documents/NetBeansProjects/JavaApplication4/src/de/sokoban_online/jsoko/board/BoxData.java</file>
             <file>file:/C:/Users/Hans/Documents/NetBeansProjects/JavaApplication4/src/SokoGenerator/Coordenate.java</file>
             <file>file:/C:/Users/Hans/Documents/NetBeansProjects/JavaApplication4/src/de/sokoban_online/jsoko/resourceHandling/Settings.java</file>
             <file>file:/C:/Users/Hans/Documents/NetBeansProjects/JavaApplication4/src/SokoGenerator/SokobanFitness.java</file>
             <file>file:/C:/Users/Hans/Documents/NetBeansProjects/JavaApplication4/src/SokoGenerator/SokoBoard/FloodFill.java</file>
             <file>file:/C:/Users/Hans/Documents/NetBeansProjects/JavaApplication4/src/SokoGenerator/SokobanChromosome.java</file>
             <file>file:/C:/Users/Hans/Documents/NetBeansProjects/JavaApplication4/src/de/sokoban_online/jsoko/solver/AnySolution/SolverAnySolution.java</file>
-            <file>file:/C:/Users/Hans/Documents/NetBeansProjects/JavaApplication4/src/de/sokoban_online/jsoko/solver/SolverAStar.java</file>
+            <file>file:/C:/Users/Hans/Documents/NetBeansProjects/JavaApplication4/src/SokoGenerator/Tree/CrossPair.java</file>
+            <file>file:/C:/Users/Hans/Documents/NetBeansProjects/JavaApplication4/src/SokoGenerator/GeneratorUtils.java</file>
+            <file>file:/C:/Users/Hans/Documents/NetBeansProjects/JavaApplication4/src/Jenes.2.2.1.r765.src/jenes/GeneticAlgorithm.java</file>
             <file>file:/C:/Users/Hans/Documents/NetBeansProjects/JavaApplication4/src/SokoGenerator/SokoBoard/Template.java</file>
             <file>file:/C:/Users/Hans/Documents/NetBeansProjects/JavaApplication4/src/SokoGenerator/SokobanGA.java</file>
             <file>file:/C:/Users/Hans/Documents/NetBeansProjects/JavaApplication4/src/javaapplication4/JavaApplication4.java</file>
-            <file>file:/C:/Users/Hans/Documents/NetBeansProjects/JavaApplication4/src/texts/texts_es.properties</file>
             <file>file:/C:/Users/Hans/Documents/NetBeansProjects/JavaApplication4/src/SokoGenerator/Tree/Pair.java</file>
         </group>
     </open-files>

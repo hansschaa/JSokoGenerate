@@ -6,10 +6,12 @@
 package SokoGenerator;
 
 
+import SokoGenerator.Tree.CrossPair;
 import SokoGenerator.Tree.Pair;
 import de.sokoban_online.jsoko.leveldata.solutions.Solution;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import jenes.GeneticAlgorithm;
 import jenes.chromosome.Chromosome;
 import jenes.tutorials.utils.Utils;
@@ -224,11 +226,13 @@ public class SokobanChromosome implements Chromosome<SokobanChromosome> {
         int attemps = 0;
         int maxAttemps = 0;
         Pair dir = new Pair(0,0);
-        Pair pivot = new Pair(0,0);
+        ArrayList<CrossPair> pivotList = new ArrayList<>();
         char[][] cloneBoard = GeneratorUtils.CloneCharArray(genes);
         var spacing = Generator.P_CROSS_SPACING;
+        
+        pivotList = GetInterestingPivots(chromosome.genes);
 
-        do{
+        /*do{
             //Select horizontal or vertical direction
             System.out.println("Select horizontal or vertical direction");
             int randomDirIndex = Generator.random.nextInt(2);
@@ -238,7 +242,7 @@ public class SokobanChromosome implements Chromosome<SokobanChromosome> {
                 dir = new Pair(1,0);
             
             System.out.println("Get pivot");
-            pivot = GetPivot(chromosome.genes, dir);
+            
 
             //Crossover
             System.out.println("Crossover");
@@ -283,31 +287,12 @@ public class SokobanChromosome implements Chromosome<SokobanChromosome> {
         }
         else{
             Generator.P_CROSSOVER_FAILED++;
-        }
+        }*/
             
         //Repair???
     }
     
-    public boolean IsLegal(char[][] board){
-    
-        int playerCount =  GeneratorUtils.CountCharacters(0, board);
-        int boxCount = GeneratorUtils.CountCharacters(1, board);
-        int goalCount = GeneratorUtils.CountCharacters(2, board);
-      
-        System.out.println("playercount: " + playerCount);
-        System.out.println("boxCount: " + boxCount);
-        System.out.println("goalCount: " + goalCount);
-        if(playerCount != 1)
-            return false;
-        
-        if(boxCount == 0 || goalCount == 0)
-            return false;
-        
-        if(boxCount != goalCount)
-            return false;
-        
-        return true;
-    }
+
     
     public Pair GetPivot(char[][] otherGenes, Pair dir){
         
@@ -324,6 +309,141 @@ public class SokobanChromosome implements Chromosome<SokobanChromosome> {
         }while(isColliding);
                
         return pivot;
+    }
+    
+    public Pair GetInterestingPivot(char[][] otherGenes, Pair dir){
+        
+        //setup
+        Pair interestingPivot = new Pair(0,0);
+        Pair nextToPivot = new Pair(0,0);
+        
+        int boxesCount = GeneratorUtils.CountCharacters(1, otherGenes);
+        int goalsCount = GeneratorUtils.CountCharacters(2, otherGenes);
+        
+        //Select tiles region
+
+        do{
+            //0 for player, 1 for boxes, 2 for goals
+            int elementID = Generator.random.nextInt(3);
+            
+            //Get Specific ID
+            int specificID = 0;
+            switch(elementID){
+                case 0 -> specificID = 0;
+                case 1 -> specificID = Generator.random.nextInt(boxesCount);
+                case 2 -> specificID = Generator.random.nextInt(goalsCount);
+            }
+            
+            interestingPivot = GeneratorUtils.FindCharacterPairIndexBased(otherGenes, elementID, specificID);
+            nextToPivot = interestingPivot.plus(dir);
+            
+        }while(IsOutside(nextToPivot));
+               
+        return interestingPivot;
+    }
+    
+    public ArrayList<CrossPair> GetInterestingPivots(char[][] otherGenes){
+        
+        //setup
+        /*Pair interestingPivot = new Pair(0,0);
+        Pair nextToPivot = new Pair(0,0);
+        
+        int boxesCount = GeneratorUtils.CountCharacters(1, otherGenes);
+        int goalsCount = GeneratorUtils.CountCharacters(2, otherGenes);
+        
+        //Select tiles region
+
+        do{
+            //0 for player, 1 for boxes, 2 for goals
+            int elementID = Generator.random.nextInt(3);
+            
+            //Get Specific ID
+            int specificID = 0;
+            switch(elementID){
+                case 0 -> specificID = 0;
+                case 1 -> specificID = Generator.random.nextInt(boxesCount);
+                case 2 -> specificID = Generator.random.nextInt(goalsCount);
+            }
+            
+            interestingPivot = GeneratorUtils.FindCharacterPairIndexBased(otherGenes, elementID, specificID);
+            nextToPivot = interestingPivot.plus(dir);
+            
+        }while(IsOutside(nextToPivot));
+               
+        return interestingPivot;*/
+        
+        System.out.println("GetInterestingPivots...");
+        
+        ArrayList<CrossPair> interestingPivots = new ArrayList<>();
+        var pivot = new Pair(0,0);
+        var pivotAux = new Pair(0,0);
+        var right = new Pair(0,1);
+        var down = new Pair(1,0);
+        ArrayList<Character> regionChars = new ArrayList<>();
+        
+        for(int i = 0 ; i < otherGenes.length ; i++){
+            for(int j = 0 ; j < otherGenes[0].length ; j++){
+                
+                pivot = new Pair(i,j);
+                if(otherGenes[pivot.i][pivot.j] == '#') continue;
+                
+                pivotAux.i = pivot.i;
+                pivotAux.j = pivot.j;
+
+                regionChars.clear();
+                //Check horizontal
+                for(int k = 0 ; k < Generator.P_CROSS_SPACING; k++){
+                   
+                    if(pivotAux.j > otherGenes[0].length - Generator.P_CROSS_SPACING || otherGenes[pivotAux.i][pivotAux.j] == '#') {
+                        break;
+                    }
+                    
+                    regionChars.add(otherGenes[pivotAux.i][pivotAux.j]);
+                    pivotAux = pivotAux.plus(right);
+
+                }
+                
+                //Try add
+                if(regionChars.size() == Generator.P_CROSS_SPACING){
+                    if((regionChars.contains('@') || regionChars.contains('+') || regionChars.contains('$') || 
+                           regionChars.contains('.') || regionChars.contains('*')) && !regionChars.contains('#')){
+                        interestingPivots.add(new CrossPair( new Pair(pivot.i, pivot.j), new Pair(0,1)));
+                    }
+                }
+                
+                pivotAux.i = pivot.i;
+                pivotAux.j = pivot.j;
+                regionChars.clear();
+                //Check vertical
+                for(int k = 0 ; k < Generator.P_CROSS_SPACING; k++){
+                    
+                    if(pivotAux.i > otherGenes.length - Generator.P_CROSS_SPACING || otherGenes[pivotAux.i][pivotAux.j] == '#'){
+                        break;
+                    } 
+                    
+                    regionChars.add(otherGenes[pivotAux.i][pivotAux.j]);
+                    pivotAux = pivotAux.plus(down);
+                }
+                
+                  //Try add
+                if(regionChars.size() == Generator.P_CROSS_SPACING){
+                    if(regionChars.contains('@') || regionChars.contains('+') || regionChars.contains('$') || 
+                           regionChars.contains('.') || regionChars.contains('*')){
+                    interestingPivots.add(new CrossPair( new Pair(pivot.i, pivot.j), new Pair(1,0)));
+                    }
+                }
+            }
+        }
+        
+        /*System.out.println("Mi tablero es: ");
+        GeneratorUtils.PrintCharArray(otherGenes);
+        System.out.println("Candidatos son: ");
+        for(CrossPair crossPair : interestingPivots){
+            crossPair.Print();
+            System.out.println("");
+        }*/
+        
+        return interestingPivots;
     }
     
     private boolean IsCollided(Pair pivot, Pair dir) {
@@ -357,6 +477,27 @@ public class SokobanChromosome implements Chromosome<SokobanChromosome> {
             return true;
             
         return false;
+    }
+    
+        public boolean IsLegal(char[][] board){
+    
+        int playerCount =  GeneratorUtils.CountCharacters(0, board);
+        int boxCount = GeneratorUtils.CountCharacters(1, board);
+        int goalCount = GeneratorUtils.CountCharacters(2, board);
+      
+        System.out.println("playercount: " + playerCount);
+        System.out.println("boxCount: " + boxCount);
+        System.out.println("goalCount: " + goalCount);
+        if(playerCount != 1)
+            return false;
+        
+        if(boxCount == 0 || goalCount == 0)
+            return false;
+        
+        if(boxCount != goalCount)
+            return false;
+        
+        return true;
     }
 
     public void UniformCrossover(SokobanChromosome chromosome) {
