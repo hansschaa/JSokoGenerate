@@ -45,11 +45,14 @@ public class Generator {
     public static Random random;
     
     //Parameters
-    private static final int P_MAX_GENERATIONS = 20;
-    private static final int P_MAX_INDIVIDUALS = 12;
-    private static final int P_TOURNAMENT_ATTEMPS = 1;
-    private static final float P_CROSSOVER_PROB = 0.9f;
-    public static int P_MAX_BOXES;
+    public static final int P_MAX_GENERATIONS = 20;
+    public static final int P_MAX_INDIVIDUALS = 12;
+    public static final int P_TOURNAMENT_ATTEMPS = 1;
+    public static final float P_CROSSOVER_PROB = 1f;
+    public static int P_CROSSOVER_TOTAL;
+    public static int P_CROSSOVER_FAILED;
+    public static int P_MAX_BOXES = 7;
+    public static int P_CROSS_SPACING = 2;
     public static final char[][] P_BASE_BOARD = {
     {'#', '#', '#', '#', '#', '#', '#'},
     {'#', ' ', ' ', ' ', ' ', ' ', '#'},
@@ -58,8 +61,7 @@ public class Generator {
     {'#', ' ', ' ', ' ', ' ', ' ', '#'},
     {'#', ' ', ' ', ' ', ' ', ' ', '#'},
     {'#', '#', '#', '#', '#', '#', '#'}};
-    private static Population<SokobanChromosome> importedPopulation;
-    private ArrayList<SokobanChromosome> sokobanChromosomeList;
+
     
     //Stats
     public static int totalChangeBoxOrGoalCount;
@@ -75,6 +77,8 @@ public class Generator {
     public static ArrayList<SokoTree> sokoTrees = new ArrayList();
     public static ArrayList<Pair> goalCandidates;
     public static LevelCollection levelCollection;
+    private static Population<SokobanChromosome> importedPopulation;
+    private ArrayList<SokobanChromosome> sokobanChromosomeList;
     
     public SokoBoard sokoBoard;
     

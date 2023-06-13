@@ -7,9 +7,12 @@ package SokoGenerator;
 
 
 import SokoGenerator.Tree.Pair;
+import de.sokoban_online.jsoko.leveldata.solutions.Solution;
 import java.util.ArrayList;
 import java.util.Arrays;
+import jenes.GeneticAlgorithm;
 import jenes.chromosome.Chromosome;
+import jenes.tutorials.utils.Utils;
 
 public class SokobanChromosome implements Chromosome<SokobanChromosome> {
     public char[][] genes;
@@ -21,18 +24,16 @@ public class SokobanChromosome implements Chromosome<SokobanChromosome> {
 
 
 
+    @Override
     public SokobanChromosome clone() {
         System.out.println("clone");
-        char[][] genesCopy = (char[][])Arrays.stream(this.genes).map((rec$) -> {
-            return (char[])((char[])rec$).clone();
-        }).toArray((x$0) -> {
-            return new char[x$0][];
-        });
-        ArrayList<MyBoxData> boxDataCopy = new ArrayList();
+        //Clone current board state
+        char[][] cloneBoard = GeneratorUtils.CloneCharArray(genes);
        
-        return new SokobanChromosome(genesCopy);
+        return new SokobanChromosome(cloneBoard);
     }
 
+    @Override
     public int length() {
         return this.genes.length * this.genes[0].length;
     }
@@ -193,20 +194,8 @@ public class SokobanChromosome implements Chromosome<SokobanChromosome> {
     }
 
     public void setAs(SokobanChromosome chromosome) {
-        /*System.out.println("setas");
-        this.genes = (char[][])Arrays.stream(chromosome.genes).map((rec$) -> {
-            return (char[])((char[])rec$).clone();
-        }).toArray((x$0) -> {
-            return new char[x$0][];
-        });
-        this.boxDatas = new ArrayList();
-        Iterator var2 = chromosome.boxDatas.iterator();
-
-        while(var2.hasNext()) {
-            MyBoxData boxData = (MyBoxData)var2.next();
-            this.boxDatas.add(new MyBoxData(boxData.goal, boxData.box, boxData.boxRoute, boxData.goalRouteIndex, boxData.boxRouteIndex));
-        }*/
-
+        /*System.out.println("setas");*/
+        genes = GeneratorUtils.CloneCharArray(chromosome.genes);
     }
 
     public void cross(SokobanChromosome chromosome, int from, int to) {
@@ -225,9 +214,137 @@ public class SokobanChromosome implements Chromosome<SokobanChromosome> {
         }
     }
 
+    @Override
     public void cross(SokobanChromosome chromosome, int from) {
         System.out.println("cross");
-        this.UniformCrossover(chromosome);
+
+        Solution solution;
+        int attemps = 0;
+        int maxAttemps = 0;
+        Pair dir = new Pair(0,0);
+        Pair pivot = new Pair(0,0);
+        char[][] cloneBoard = GeneratorUtils.CloneCharArray(chromosome.genes);
+        var spacing = Generator.P_CROSS_SPACING;
+
+        
+        do{
+            //Select horizontal or vertical direction
+            int randomDirIndex = Generator.random.nextInt(2);
+            if(randomDirIndex == 0)
+                dir = new Pair(0,1);
+            else
+                dir = new Pair(1,0);
+            
+            
+            pivot = GetPivot(chromosome.genes, dir);
+
+            //Crossover
+            Pair current = pivot;
+            for(int i=0; i != spacing; i++){
+
+                var otherCharacter = chromosome.genes[current.i][current.j];
+                cloneBoard[current.i][current.j] = otherCharacter;
+                
+                current.plus(dir);
+            }
+           
+            var isLegal = IsLegal(cloneBoard);
+            
+            if(isLegal){
+                int boxCount = GeneratorUtils.CountCharacters(1, cloneBoard);
+                solution = Generator.GetSolution(cloneBoard, false, boxCount);
+            }
+                
+            else
+                solution = null;
+            
+            attemps++;
+        }while(attemps < maxAttemps && solution == null);
+        
+        if(solution != null)
+        {
+            Generator.P_CROSSOVER_TOTAL++;
+            //Update genes whit clone
+            Pair current = pivot;
+            for(int i=0; i != spacing; i++){
+
+                var otherCharacter = chromosome.genes[current.i][current.j];
+                genes[current.i][current.j] = otherCharacter;
+                
+                current.plus(dir);
+            }
+            
+        }
+        else{
+            Generator.P_CROSSOVER_FAILED++;
+        }
+            
+        //Repair???
+    }
+    
+    public boolean IsLegal(char[][] board){
+    
+        int playerCount =  GeneratorUtils.CountCharacters(0, board);
+        int boxCount = GeneratorUtils.CountCharacters(1, board);
+        int goalCount = GeneratorUtils.CountCharacters(2, board);
+      
+        if(playerCount != 1)
+            return false;
+        
+        if(boxCount != goalCount)
+            return false;
+        
+        return true;
+    }
+    
+    public Pair GetPivot(char[][] otherGenes, Pair dir){
+        
+        //setup
+        Pair pivot = new Pair(0,0);
+                
+        //Select tiles region
+        boolean isColliding = true;
+        do{
+            pivot = GeneratorUtils.GetEmptySpacePair(otherGenes);
+            
+            isColliding = IsCollided(pivot, dir);
+            
+        }while(isColliding);
+               
+        return pivot;
+    }
+    
+    private boolean IsCollided(Pair pivot, Pair dir) {
+        
+        var spacing = Generator.P_CROSS_SPACING;
+        Pair current = pivot.plus(dir);
+        for(int i=0; i != spacing; i++){
+        
+            //check if current is outside
+            if(IsOutside(current)){
+                return true;
+            }
+               
+            else{
+                if(genes[current.i][current.j]=='#')
+                    return true;
+                
+                current.plus(dir);
+            } 
+        }
+        
+        return false;
+    }
+    
+    public boolean IsOutside(Pair current){
+    
+        if(current.i < 0 || current.i >= genes.length)
+            return true;
+        
+        else if(current.j < 0 || current.j >= genes[0].length)
+            return true;
+            
+        return false;
     }
 
     public void UniformCrossover(SokobanChromosome chromosome) {
@@ -429,4 +546,6 @@ public class SokobanChromosome implements Chromosome<SokobanChromosome> {
     public void setDefaultValueAt(int pos) {
         System.out.println("setDefaultValueAt");
     }
+
+
 }
