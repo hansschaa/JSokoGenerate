@@ -45,6 +45,7 @@ public class SokobanChromosome implements Chromosome<SokobanChromosome> {
 
     @Override
     public void randomize(int pos) {
+        System.out.println("randomize 1");
         switch (pos) {
             case 0 -> {
                 Generator.totalChangeBoxOrGoalCount++;
@@ -69,6 +70,7 @@ public class SokobanChromosome implements Chromosome<SokobanChromosome> {
          
         //Get max boxes
         int maxBoxesOrGoals = GeneratorUtils.CountCharacters(boxOrGoalChoice == 0 ? 1 : 2, cloneBoard);
+        //System.out.println("maxBoxesOrGoals: " + maxBoxesOrGoals);
         int id = Generator.random.nextInt(maxBoxesOrGoals); 
        
         //Find Box or goal
@@ -223,22 +225,23 @@ public class SokobanChromosome implements Chromosome<SokobanChromosome> {
         int maxAttemps = 0;
         Pair dir = new Pair(0,0);
         Pair pivot = new Pair(0,0);
-        char[][] cloneBoard = GeneratorUtils.CloneCharArray(chromosome.genes);
+        char[][] cloneBoard = GeneratorUtils.CloneCharArray(genes);
         var spacing = Generator.P_CROSS_SPACING;
 
-        
         do{
             //Select horizontal or vertical direction
+            System.out.println("Select horizontal or vertical direction");
             int randomDirIndex = Generator.random.nextInt(2);
             if(randomDirIndex == 0)
                 dir = new Pair(0,1);
             else
                 dir = new Pair(1,0);
             
-            
+            System.out.println("Get pivot");
             pivot = GetPivot(chromosome.genes, dir);
 
             //Crossover
+            System.out.println("Crossover");
             Pair current = pivot;
             for(int i=0; i != spacing; i++){
 
@@ -248,10 +251,13 @@ public class SokobanChromosome implements Chromosome<SokobanChromosome> {
                 current.plus(dir);
             }
            
+            System.out.println("Legal");
             var isLegal = IsLegal(cloneBoard);
             
             if(isLegal){
                 int boxCount = GeneratorUtils.CountCharacters(1, cloneBoard);
+                System.out.println("Solution");
+                GeneratorUtils.PrintCharArray(cloneBoard);
                 solution = Generator.GetSolution(cloneBoard, false, boxCount);
             }
                 
@@ -288,7 +294,13 @@ public class SokobanChromosome implements Chromosome<SokobanChromosome> {
         int boxCount = GeneratorUtils.CountCharacters(1, board);
         int goalCount = GeneratorUtils.CountCharacters(2, board);
       
+        System.out.println("playercount: " + playerCount);
+        System.out.println("boxCount: " + boxCount);
+        System.out.println("goalCount: " + goalCount);
         if(playerCount != 1)
+            return false;
+        
+        if(boxCount == 0 || goalCount == 0)
             return false;
         
         if(boxCount != goalCount)

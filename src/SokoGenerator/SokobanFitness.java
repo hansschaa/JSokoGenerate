@@ -23,12 +23,17 @@ public class SokobanFitness extends Fitness<SokobanChromosome> {
 
     @Override
     public void evaluate(Individual<SokobanChromosome> individual) {
-        SokobanChromosome chromosome = (SokobanChromosome)individual.getChromosome();
+        System.out.println("Evaluate");
         
+        SokobanChromosome chromosome = (SokobanChromosome)individual.getChromosome();
+        GeneratorUtils.PrintCharArray(chromosome.genes);
         int boxCount = GeneratorUtils.CountCharacters(1, chromosome.genes);
         
-        this.solution = Generator.GetSolution(chromosome.genes, false,boxCount);
-        individual.setScore(solution.lurd.length());
+        this.solution = Generator.GetSolution(chromosome.genes, false, boxCount);
+        //if(solution != null)
+            individual.setScore(solution.lurd.length());
+        //else
+            //individual.setScore(-1);
       
         //int movesCount = this.application.movesHistory.getMovementsCount();
         //int pushesCount = this.application.movesHistory.getPushesCount();

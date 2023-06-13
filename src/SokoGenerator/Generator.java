@@ -143,6 +143,7 @@ public class Generator {
         for(int i = 0 ; i < totalAttempts ; i++){
             do{
                 sokobanChromosome = GetRandomInitialSokobanChromosome();
+                GeneratorUtils.PrintCharArray(sokobanChromosome.genes);
                 solution = GetSolution(sokobanChromosome.genes, false, 1);
                 if(solution == null)
                     notSolutionCount++;
@@ -335,7 +336,7 @@ public class Generator {
         double distance = best.getScore();
         System.out.format("%s\n\tended in %d ms, \n\ttime spent per fitness evaluation %d \n\tfitness evaluations performed: %d\n\ttime for fitness evaluation/total time: %f%%\n\tdistance from target: %.2f (%s)\n", "End", stats.getExecutionTime(), stats.getTimeSpentForFitnessEval(), stats.getFitnessEvaluationNumbers(), (double)stats.getTimeSpentForFitnessEval() * 100.0 / (double)stats.getExecutionTime(), distance, distance == 0.0 ? "exact matching" : "");
         this.ExportLevels();
-        this.generatorThread.suspend();
+        this.generatorThread.interrupt();
     }
 
     private void ExportLevels() {
@@ -343,36 +344,20 @@ public class Generator {
             System.out.println("----> Exporting results...");
             StringBuilder sb = new StringBuilder();
             Population<SokobanChromosome> pop = sokobanGA.getLastPopulation();
-            Iterator var3 = pop.iterator();
-
-            while(var3.hasNext()) {
-                Individual<SokobanChromosome> sc = (Individual)var3.next();
-                char[][] board = ((SokobanChromosome)sc.getChromosome()).genes;
-                char[][] var6 = board;
-                int var7 = board.length;
-
-                for(int var8 = 0; var8 < var7; ++var8) {
-                    char[] row = var6[var8];
-
-                    for(int j = 0; j < row.length; ++j) {
-                        sb.append(row[j]);
-                    }
-
-                    sb.append("\r\n");
-                }
-
-                /*int var10001 = ((SokobanChromosome)sc.getChromosome()).pushes;
-                sb.append("P: " + var10001 + "- M: " + ((SokobanChromosome)sc.getChromosome()).moves);
-                sb.append("\n");
-                sb.append("\n");*/
+            
+            for(Individual<SokobanChromosome> sc : pop){
+                GeneratorUtils.PrintCharArray(sc.getChromosome().genes);
+                System.out.println("fitness: " + sc.getChromosome().fitnessValue);
+                System.out.println("\n");
             }
 
-            sb.append("Total player mutation: " + totalChangeBoxOrGoalCount + "\n");
-            sb.append("Effective player mutation: " + effectiveChangeBoxOrGoalCount + "\n");
-            sb.append("Total box invert mutation: " + totalChangePlayerMutationCount + "\n");
-            sb.append("Effective box invert mutation: " + effectiveChangePlayerMutation + "\n");
-            Path path = Paths.get("C:\\Users\\hansschaa\\Desktop\\SokoResults.txt");
-            Files.write(path, sb.toString().getBytes(), new OpenOption[0]);
+            System.out.println("Total player mutation: " + totalChangeBoxOrGoalCount);
+            System.out.println("Effective player mutation: " + effectiveChangeBoxOrGoalCount);
+            System.out.println("Total box invert mutation: " + totalChangePlayerMutationCount);
+            System.out.println("Effective box invert mutation: " + effectiveChangePlayerMutation);
+            System.out.println("Total crossover: " + Generator.P_CROSSOVER_TOTAL);
+            System.out.println("Total crossover failed: " + Generator.P_CROSSOVER_FAILED);
+            
         } catch (Exception var11) {
             System.out.println("Error");
         }
