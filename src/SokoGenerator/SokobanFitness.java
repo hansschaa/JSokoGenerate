@@ -31,7 +31,7 @@ public class SokobanFitness extends Fitness<SokobanChromosome> {
         
         this.solution = Generator.GetSolution(chromosome.genes, false, boxCount);
         if(solution != null)
-            individual.setScore(solution.lurd.length());
+            individual.setScore(this.application.movesHistory.getPushesCount());
         else
             individual.setScore(-1);
       

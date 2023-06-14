@@ -165,10 +165,12 @@ public class Generator {
         Generator.application.setCollectionForPlaying(levelCollection);
         Generator.application.setLevelForPlaying(1);
         Generator.application.currentLevel = Generator.solverLevel;
-        
-        //Generator.anySolutionSolver = any//new SolverAnySolution(Generator.application, Generator.solverGUI);
-        Generator.sol = new SolverAnySolution(Generator.application, Generator.solverGUI).searchSolution();
-        
+
+        if(optimal)
+            Generator.sol = new SolverAStarPushesMoves(Generator.application, Generator.solverGUI).searchSolution();
+        else
+            Generator.sol = new SolverAnySolution(Generator.application, Generator.solverGUI).searchSolution();
+
         return Generator.sol;
     }
 
