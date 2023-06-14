@@ -222,77 +222,123 @@ public class SokobanChromosome implements Chromosome<SokobanChromosome> {
     public void cross(SokobanChromosome chromosome, int from) {
         System.out.println("cross");
 
+        //Setup
         Solution solution;
-        int attemps = 0;
-        int maxAttemps = 0;
-        Pair dir = new Pair(0,0);
-        ArrayList<CrossPair> pivotList = new ArrayList<>();
+        ArrayList<CrossPair> interestingPivotsList = new ArrayList<>();
         char[][] cloneBoard = GeneratorUtils.CloneCharArray(genes);
-        var spacing = Generator.P_CROSS_SPACING;
         
-        pivotList = GetInterestingPivots(chromosome.genes);
-
-        /*do{
-            //Select horizontal or vertical direction
-            System.out.println("Select horizontal or vertical direction");
-            int randomDirIndex = Generator.random.nextInt(2);
-            if(randomDirIndex == 0)
-                dir = new Pair(0,1);
-            else
-                dir = new Pair(1,0);
+        //Get candidates
+        interestingPivotsList = GetInterestingPivots(chromosome.genes);
+        
+        //Crossover
+        if(interestingPivotsList.isEmpty()){
+            System.out.println("-> interestingPivotsList de largo 0");
+        }
             
-            System.out.println("Get pivot");
-            
+        else{
+            //Select a random region
+            var randomInterestingPivot = interestingPivotsList.get(Generator.random.nextInt(interestingPivotsList.size()));
 
-            //Crossover
-            System.out.println("Crossover");
-            Pair current = pivot;
-            for(int i=0; i != spacing; i++){
+            //Put random region in clone
+            for(int i = 0 ; i < Generator.P_CROSS_SPACING ; i++){
+                var charClone =  chromosome.genes
+                        [randomInterestingPivot.pair.i][randomInterestingPivot.pair.j];
 
-                var otherCharacter = chromosome.genes[current.i][current.j];
-                cloneBoard[current.i][current.j] = otherCharacter;
-                
-                current.plus(dir);
+                cloneBoard[randomInterestingPivot.pair.i][randomInterestingPivot.pair.j] = charClone;
+
+                randomInterestingPivot.pair = randomInterestingPivot.pair.plus(randomInterestingPivot.dir);
             }
-           
-            System.out.println("Legal");
-            var isLegal = IsLegal(cloneBoard);
             
+            //Check if clone is legal
+            
+            
+            boolean isLegal = IsLegal(cloneBoard);
             if(isLegal){
                 int boxCount = GeneratorUtils.CountCharacters(1, cloneBoard);
-                System.out.println("Solution");
-                GeneratorUtils.PrintCharArray(cloneBoard);
-                solution = Generator.GetSolution(cloneBoard, false, boxCount);
+                solution = Generator.GetSolution(genes, false, boxCount);
+                if(solution != null){
+                     genes = GeneratorUtils.CloneCharArray(cloneBoard);
+                }
             }
+            else{
+                //repair illegal
+                RepairIllegal(cloneBoard);
                 
-            else
-                solution = null;
-            
-            attemps++;
-        }while(attemps < maxAttemps && solution == null);
-        
-        if(solution != null)
-        {
-            Generator.P_CROSSOVER_TOTAL++;
-            //Update genes whit clone
-            Pair current = pivot;
-            for(int i=0; i != spacing; i++){
-
-                var otherCharacter = chromosome.genes[current.i][current.j];
-                genes[current.i][current.j] = otherCharacter;
-                
-                current.plus(dir);
+                //Retry
+                int boxCount = GeneratorUtils.CountCharacters(1, cloneBoard);
+                solution = Generator.GetSolution(genes, false, boxCount);
+                if(solution != null){
+                     genes = GeneratorUtils.CloneCharArray(cloneBoard);
+                }
             }
-            
         }
-        else{
-            Generator.P_CROSSOVER_FAILED++;
-        }*/
-            
-        //Repair???
     }
     
-
+    public void RepairIllegal(char[][] cloneBoard){
+        
+        System.out.println("----------------------");
+        System.out.println("Antes");
+        GeneratorUtils.PrintCharArray(cloneBoard);
+        
+        //Check illegality
+        int playerCount = GeneratorUtils.CountCharacters(0, cloneBoard);
+        int boxCount = GeneratorUtils.CountCharacters(1, cloneBoard);
+        int goalCount = GeneratorUtils.CountCharacters(2, cloneBoard);
+        
+        //For player
+        if(playerCount > 1){
+            int specificPlayerCount = Generator.random.nextInt(2);
+            Pair playerIndex = GeneratorUtils.FindCharacterPairIndexBased(cloneBoard, 0, specificPlayerCount);
+            if(cloneBoard[playerIndex.i][playerIndex.j] == '+')
+                cloneBoard[playerIndex.i][playerIndex.j] = '.';
+            else
+                cloneBoard[playerIndex.i][playerIndex.j] = ' ';
+        }
+        else if (playerCount == 0){
+            Pair emptySpace = GeneratorUtils.GetEmptySpacePair(cloneBoard);
+            cloneBoard[emptySpace.i][emptySpace.j] = '@';
+        }
+        
+        //For boxes
+        if(boxCount > goalCount){
+            int diff = boxCount - goalCount;
+            
+            while(diff != 0){
+                
+                Pair emptySpace = GeneratorUtils.GetEmptySpacePair(cloneBoard);
+                cloneBoard[emptySpace.i][emptySpace.j] = '.';
+                
+                diff--;
+            }
+        }
+        
+        else if(boxCount == 0 ){
+            Pair emptySpace = GeneratorUtils.GetEmptySpacePair(cloneBoard);
+            cloneBoard[emptySpace.i][emptySpace.j] = '$';
+        }
+        
+        //For goals
+        if(goalCount > boxCount){
+            int diff = goalCount - boxCount;
+            
+            while(diff != 0){
+                
+                Pair emptySpace = GeneratorUtils.GetEmptySpacePair(cloneBoard);
+                cloneBoard[emptySpace.i][emptySpace.j] = '$';
+                
+                diff--;
+            }
+        }
+        
+        else if(goalCount == 0 ){
+            Pair emptySpace = GeneratorUtils.GetEmptySpacePair(cloneBoard);
+            cloneBoard[emptySpace.i][emptySpace.j] = '.';
+        }
+        
+        System.out.println("Despúes");
+        GeneratorUtils.PrintCharArray(cloneBoard);
+        System.out.println("----------------------");
+    }
     
     public Pair GetPivot(char[][] otherGenes, Pair dir){
         
