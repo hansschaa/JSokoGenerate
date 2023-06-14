@@ -29,7 +29,7 @@ public class SokobanFitness extends Fitness<SokobanChromosome> {
         GeneratorUtils.PrintCharArray(chromosome.genes);
         int boxCount = GeneratorUtils.CountCharacters(1, chromosome.genes);
         
-        this.solution = Generator.GetSolution(chromosome.genes, false, boxCount);
+        this.solution = Generator.GetSolution(chromosome.genes, true, boxCount);
         if(solution != null)
             individual.setScore(this.application.movesHistory.getPushesCount());
         else
@@ -39,6 +39,5 @@ public class SokobanFitness extends Fitness<SokobanChromosome> {
         //int pushesCount = this.application.movesHistory.getPushesCount();
         /*chromosome.moves = movesCount;
         chromosome.pushes = pushesCount;*/
-        
     }
 }

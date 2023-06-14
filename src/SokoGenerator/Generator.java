@@ -139,7 +139,7 @@ public class Generator {
             do{
                 sokobanChromosome = GetRandomInitialSokobanChromosome();
                 GeneratorUtils.PrintCharArray(sokobanChromosome.genes);
-                solution = GetSolution(sokobanChromosome.genes, false, 1);
+                solution = GetSolution(sokobanChromosome.genes, true, 1);
                 if(solution == null)
                     notSolutionCount++;
    

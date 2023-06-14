@@ -250,8 +250,6 @@ public class SokobanChromosome implements Chromosome<SokobanChromosome> {
             }
             
             //Check if clone is legal
-            
-            
             boolean isLegal = IsLegal(cloneBoard);
             if(isLegal){
                 int boxCount = GeneratorUtils.CountCharacters(1, cloneBoard);
