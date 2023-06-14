@@ -79,11 +79,6 @@ public class Generator {
     public static LevelCollection levelCollection;
     private static Population<SokobanChromosome> importedPopulation;
     private ArrayList<SokobanChromosome> sokobanChromosomeList;
-    
-    public SokoBoard sokoBoard;
-    
-    Queue<Pair> queue = new LinkedList();
-
 
     public Generator(JSoko application) throws FileNotFoundException {
         Generator.application = application;
@@ -198,16 +193,10 @@ public class Generator {
     
     public void Init() throws FileNotFoundException {
         System.out.println("Init...");
-        this.InitBoards();
         /*if (!this.RunGA()) {
             this.Init();
         }*/
 
-    }
-
-    private void InitBoards() throws FileNotFoundException {
-        System.out.println("----> InitBoards....");
-        this.sokoBoard.GenerateLevels();
     }
 
     public void RunGA() {

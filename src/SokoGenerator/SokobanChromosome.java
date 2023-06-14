@@ -307,7 +307,7 @@ public class SokobanChromosome implements Chromosome<SokobanChromosome> {
                 
                 Pair emptySpace = GeneratorUtils.GetEmptySpacePair(cloneBoard);
                 cloneBoard[emptySpace.i][emptySpace.j] = '.';
-                
+                goalCount++;
                 diff--;
             }
         }
@@ -315,6 +315,7 @@ public class SokobanChromosome implements Chromosome<SokobanChromosome> {
         else if(boxCount == 0 ){
             Pair emptySpace = GeneratorUtils.GetEmptySpacePair(cloneBoard);
             cloneBoard[emptySpace.i][emptySpace.j] = '$';
+            boxCount++;
         }
         
         //For goals
@@ -325,7 +326,7 @@ public class SokobanChromosome implements Chromosome<SokobanChromosome> {
                 
                 Pair emptySpace = GeneratorUtils.GetEmptySpacePair(cloneBoard);
                 cloneBoard[emptySpace.i][emptySpace.j] = '$';
-                
+                boxCount++;
                 diff--;
             }
         }
@@ -333,6 +334,7 @@ public class SokobanChromosome implements Chromosome<SokobanChromosome> {
         else if(goalCount == 0 ){
             Pair emptySpace = GeneratorUtils.GetEmptySpacePair(cloneBoard);
             cloneBoard[emptySpace.i][emptySpace.j] = '.';
+            goalCount++;
         }
         
         System.out.println("Despúes");
