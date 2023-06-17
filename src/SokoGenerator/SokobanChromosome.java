@@ -24,8 +24,6 @@ public class SokobanChromosome implements Chromosome<SokobanChromosome> {
         this.genes = boardData;
     }
 
-
-
     @Override
     public SokobanChromosome clone() {
         System.out.println("clone");
@@ -42,24 +40,60 @@ public class SokobanChromosome implements Chromosome<SokobanChromosome> {
 
     @Override
     public void randomize() {
-        System.out.println("randomize 2");
-    }
-
-    @Override
-    public void randomize(int pos) {
-        System.out.println("randomize 1");
-        switch (pos) {
-            case 0 -> {
-                Generator.totalChangeBoxOrGoalCount++;
-                this.ChangeBoxOrGoal();
-            }
-            case 1 -> {
-                Generator.totalChangePlayerMutationCount++;
-                this.ChangePlayer();
-            }
+        System.out.println("Mutator 1");
+        
+        //Clone current board state
+        char[][] cloneBoard = GeneratorUtils.CloneCharArray(genes);
+        
+        //Player : 0 , box: 1 , goal: 2
+        var randomElementIndex = Generator.random.nextInt(3);
+        int max = GeneratorUtils.CountCharacters(randomElementIndex, cloneBoard);
+        Pair selectedPair = GeneratorUtils.FindCharacterPairIndexBased(cloneBoard, randomElementIndex,
+                Generator.random.nextInt(max));
+        
+        //Get a empty space
+        Pair emptySpace = GeneratorUtils.GetEmptySpacePair(cloneBoard);
+        
+        //Replace
+        if(randomElementIndex == 0){
+            if(cloneBoard[selectedPair.i][selectedPair.j] == '+')
+                cloneBoard[selectedPair.i][selectedPair.j] = '.';
+            else
+                cloneBoard[selectedPair.i][selectedPair.j] = ' ';
+                
+            cloneBoard[emptySpace.i][emptySpace.j] = '@';
+        }
+        
+        
+        else if(randomElementIndex == 1){
+            if(cloneBoard[selectedPair.i][selectedPair.j] == '*')
+                cloneBoard[selectedPair.i][selectedPair.j] = '.';
+            else
+                cloneBoard[selectedPair.i][selectedPair.j] = ' ';
+                
+            cloneBoard[emptySpace.i][emptySpace.j] = '$';
+        }
+        
+        else if(randomElementIndex == 2){
+            if(cloneBoard[selectedPair.i][selectedPair.j] == '*')
+                cloneBoard[selectedPair.i][selectedPair.j] = '$';
+            else
+                cloneBoard[selectedPair.i][selectedPair.j] = ' ';
+                
+            cloneBoard[emptySpace.i][emptySpace.j] = '.';
+        }
+        
+        
+        int boxCount = GeneratorUtils.CountCharacters(1, cloneBoard);
+        if(Generator.GetSolution(cloneBoard, false, boxCount) != null){
+            Generator.R_TOTAL_EFFECTIVE_MUTATION++;
+            genes = GeneratorUtils.CloneCharArray(cloneBoard);
         }
 
+        Generator.R_TOTAL_MUTATION++;
     }
+
+
 
     public void ChangeBoxOrGoal() {
         
@@ -221,6 +255,7 @@ public class SokobanChromosome implements Chromosome<SokobanChromosome> {
     @Override
     public void cross(SokobanChromosome chromosome, int from) {
         System.out.println("cross");
+        Generator.R_TOTAL_CROSSOVER++;
 
         //Setup
         Solution solution;
@@ -253,9 +288,10 @@ public class SokobanChromosome implements Chromosome<SokobanChromosome> {
             boolean isLegal = IsLegal(cloneBoard);
             if(isLegal){
                 int boxCount = GeneratorUtils.CountCharacters(1, cloneBoard);
-                solution = Generator.GetSolution(genes, false, boxCount);
+                solution = Generator.GetSolution(cloneBoard, false, boxCount);
                 if(solution != null){
-                     genes = GeneratorUtils.CloneCharArray(cloneBoard);
+                    Generator.R_TOTAL_EFFECTIVE_CROSSOVER++;
+                    genes = GeneratorUtils.CloneCharArray(cloneBoard);
                 }
             }
             else{
@@ -264,15 +300,20 @@ public class SokobanChromosome implements Chromosome<SokobanChromosome> {
                 
                 //Retry
                 int boxCount = GeneratorUtils.CountCharacters(1, cloneBoard);
-                solution = Generator.GetSolution(genes, false, boxCount);
+                solution = Generator.GetSolution(cloneBoard, false, boxCount);
                 if(solution != null){
-                     genes = GeneratorUtils.CloneCharArray(cloneBoard);
+                    Generator.R_TOTAL_EFFECTIVE_REPAIR++;
+                    Generator.R_TOTAL_EFFECTIVE_CROSSOVER++;
+                    genes = GeneratorUtils.CloneCharArray(cloneBoard);
                 }
+                
             }
         }
     }
     
     public void RepairIllegal(char[][] cloneBoard){
+        
+        Generator.R_TOTAL_REPAIR++;
         
         System.out.println("----------------------");
         System.out.println("Antes");
@@ -746,5 +787,8 @@ public class SokobanChromosome implements Chromosome<SokobanChromosome> {
         System.out.println("setDefaultValueAt");
     }
 
-
+    @Override
+    public void randomize(int val) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
 }

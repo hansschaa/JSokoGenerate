@@ -49,25 +49,26 @@ public class Generator {
     public static final int P_MAX_INDIVIDUALS = 12;
     public static final int P_TOURNAMENT_ATTEMPS = 1;
     public static final float P_CROSSOVER_PROB = 1f;
-    public static int P_CROSSOVER_TOTAL;
-    public static int P_CROSSOVER_FAILED;
     public static int P_MAX_BOXES = 7;
     public static int P_CROSS_SPACING = 2;
     public static final char[][] P_BASE_BOARD = {
-    {'#', '#', '#', '#', '#', '#', '#'},
-    {'#', ' ', ' ', ' ', ' ', ' ', '#'},
-    {'#', ' ', ' ', ' ', ' ', ' ', '#'},
-    {'#', ' ', ' ', ' ', ' ', ' ', '#'},
-    {'#', ' ', ' ', ' ', ' ', ' ', '#'},
-    {'#', ' ', ' ', ' ', ' ', ' ', '#'},
-    {'#', '#', '#', '#', '#', '#', '#'}};
+    {'#', '#', '#', '#', '#', '#', '#','#'},
+    {'#', ' ', ' ', ' ', ' ', ' ', ' ','#'},
+    {'#', ' ', ' ', ' ', ' ', ' ', ' ','#'},
+    {'#', ' ', ' ', '#', ' ', ' ', ' ','#'},
+    {'#', '#', '#', '#', ' ', ' ', ' ','#'},
+    {'#', ' ', ' ', ' ', ' ', ' ', ' ','#'},
+    {'#', ' ', ' ', ' ', ' ', ' ', ' ','#'},
+    {'#', '#', '#', '#', '#', '#', '#','#'}};
 
     
     //Stats
-    public static int totalChangeBoxOrGoalCount;
-    public static int totalChangePlayerMutationCount;
-    public static int effectiveChangeBoxOrGoalCount;
-    public static int effectiveChangePlayerMutation;
+    public static int R_TOTAL_CROSSOVER;
+    public static int R_TOTAL_EFFECTIVE_CROSSOVER;
+    public static int R_TOTAL_MUTATION;
+    public static int R_TOTAL_EFFECTIVE_MUTATION;
+    public static int R_TOTAL_REPAIR;
+    public static int R_TOTAL_EFFECTIVE_REPAIR;
     
     //Others
     public Thread generatorThread;
@@ -252,12 +253,10 @@ public class Generator {
     private void SetupEvolutionaryAlgorithm() {
         AbstractStage<SokobanChromosome> selection = new TournamentSelector(Generator.P_TOURNAMENT_ATTEMPS);
         AbstractStage<SokobanChromosome> crossover = new SokoCrossover(P_CROSSOVER_PROB);
-        AbstractStage<SokobanChromosome> InvertBoxGoalMutation = new InvertBoxGoalPosMutator(0.4);
-        AbstractStage<SokobanChromosome> ChangePlayerPosMutation = new ChangePlayerPosMutator(0.25);
+        AbstractStage<SokobanChromosome> ChangeSokoElementPosMutator = new ChangeSokoElementPosMutator(0.35);
         sokobanGA.addStage(selection);
         sokobanGA.addStage(crossover);
-        sokobanGA.addStage(InvertBoxGoalMutation);
-        sokobanGA.addStage(ChangePlayerPosMutation);
+        sokobanGA.addStage(ChangeSokoElementPosMutator);
         sokobanGA.setElitism(1);
     }
     
@@ -342,12 +341,13 @@ public class Generator {
                 System.out.println("\n");
             }
 
-            System.out.println("Total player mutation: " + totalChangeBoxOrGoalCount);
-            System.out.println("Effective player mutation: " + effectiveChangeBoxOrGoalCount);
-            System.out.println("Total box invert mutation: " + totalChangePlayerMutationCount);
-            System.out.println("Effective box invert mutation: " + effectiveChangePlayerMutation);
-            System.out.println("Total crossover: " + Generator.P_CROSSOVER_TOTAL);
-            System.out.println("Total crossover failed: " + Generator.P_CROSSOVER_FAILED);
+            System.out.println("Total crossover: " + Generator.R_TOTAL_CROSSOVER);
+            System.out.println("Total effective crossover: " + Generator.R_TOTAL_EFFECTIVE_CROSSOVER);
+            System.out.println("Total Mutation: " + Generator.R_TOTAL_MUTATION);
+            System.out.println("Total effective Mutation: " + Generator.R_TOTAL_EFFECTIVE_MUTATION);
+            System.out.println("Total repair: " + Generator.R_TOTAL_REPAIR);
+            System.out.println("Total effective repair: " + Generator.R_TOTAL_EFFECTIVE_REPAIR);
+      
             
         } catch (Exception var11) {
             System.out.println("Error");
