@@ -45,10 +45,10 @@ public class Generator {
     public static Random random;
     
     //Parameters
-    public static final int P_MAX_GENERATIONS = 20;
-    public static final int P_MAX_INDIVIDUALS = 12;
+    public static final int P_MAX_GENERATIONS = 30;
+    public static final int P_MAX_INDIVIDUALS = 14;
     public static final int P_TOURNAMENT_ATTEMPS = 1;
-    public static final float P_CROSSOVER_PROB = 1f;
+    public static final float P_CROSSOVER_PROB = .9f;
     public static int P_MAX_BOXES = 7;
     public static int P_CROSS_SPACING = 2;
     public static final char[][] P_BASE_BOARD = {
@@ -60,6 +60,7 @@ public class Generator {
     {'#', ' ', ' ', ' ', ' ', ' ', ' ','#'},
     {'#', ' ', ' ', ' ', ' ', ' ', ' ','#'},
     {'#', '#', '#', '#', '#', '#', '#','#'}};
+
 
     
     //Stats
@@ -93,6 +94,7 @@ public class Generator {
         
         Generator.solverLevel.setHeight(P_BASE_BOARD.length);
         Generator.solverLevel.setWidth(P_BASE_BOARD[0].length);
+        
         
         GetInitialPopulation();
         // Ordenar el ArrayList de cromosomas por fitness de mayor a menor
@@ -335,10 +337,27 @@ public class Generator {
             StringBuilder sb = new StringBuilder();
             Population<SokobanChromosome> pop = sokobanGA.getLastPopulation();
             
+            ArrayList<SokobanChromosome> finalChromosomesSorted = new ArrayList<>();
+            
             for(Individual<SokobanChromosome> sc : pop){
-                GeneratorUtils.PrintCharArray(sc.getChromosome().genes);
-                System.out.println("fitness: " + sc.getChromosome().fitnessValue);
-                System.out.println("\n");
+             
+                finalChromosomesSorted.add(sc.getChromosome());
+            }
+            
+            Collections.sort(finalChromosomesSorted, new Comparator<SokobanChromosome>() {
+            @Override
+            public int compare(SokobanChromosome c1, SokobanChromosome c2) {
+                // Comparar los valores de fitness de los cromosomas en orden descendente
+                return Double.compare(c2.pushes, c1.pushes);
+            }
+            });
+            
+            for(SokobanChromosome sc : finalChromosomesSorted){
+                /*System.out.println("Moves, Pushes , boxChanges: " + sc.getChromosome().moves + "," + sc.getChromosome().pushes + "," +
+                        sc.getChromosome().boxChanges);
+                System.out.println("\n");*/
+                GeneratorUtils.PrintCharArray(sc.genes);
+                System.out.println(sc.moves + "," + sc.pushes + "," + sc.boxChanges + "," + sc.counterIntuitives);
             }
 
             System.out.println("Total crossover: " + Generator.R_TOTAL_CROSSOVER);
@@ -347,7 +366,6 @@ public class Generator {
             System.out.println("Total effective Mutation: " + Generator.R_TOTAL_EFFECTIVE_MUTATION);
             System.out.println("Total repair: " + Generator.R_TOTAL_REPAIR);
             System.out.println("Total effective repair: " + Generator.R_TOTAL_EFFECTIVE_REPAIR);
-      
             
         } catch (Exception var11) {
             System.out.println("Error");

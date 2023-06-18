@@ -18,6 +18,7 @@ import jenes.tutorials.utils.Utils;
 
 public class SokobanChromosome implements Chromosome<SokobanChromosome> {
     public char[][] genes;
+    public int pushes, moves, boxChanges, counterIntuitives, totalFitness;
     public int fitnessValue;
     
     public SokobanChromosome(char[][] boardData) {
