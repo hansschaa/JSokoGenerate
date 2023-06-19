@@ -158,137 +158,238 @@ public class GeneratorUtils {
         System.out.println("GetCounterIntuitiveMoves");
         
         int counterIntuitiveMoves = 0;
+        StringBuilder lurdReversed = new StringBuilder(LURD).reverse();
+        ArrayList<BoxGoal> boxgoalList = new ArrayList<>();
         
-        //Clone current board state
-        char[][] cloneBoard = GeneratorUtils.CloneCharArray(genes);
-        ManhattanSokoBoard manhattanSokoBoard = new ManhattanSokoBoard(cloneBoard, 0);
-        manhattanSokoBoard.globalManhattanScore = GeneratorUtils.GetBoardManhattanDistance(cloneBoard);
+        //Generate win board
+        char[][] winBoard = GeneratorUtils.CloneCharArray(genes);
+        
+        //Set to win state
+        for(int i = 0; i < winBoard.length;i++){
+            for(int j = 0; j < winBoard[0].length;j++){
+                if(winBoard[i][j] == '.' || winBoard[i][j] == '*'){
+                    winBoard[i][j] = '*';
 
+                    boxgoalList.add(new BoxGoal(new Pair(i,j), new Pair(i,j)));
+                }
+                
+                else if(winBoard[i][j] == '$')
+                    winBoard[i][j] = ' ';
+            }
+        }
+        
+        //Set the player for the solution state
+        Pair startPlayerPos = GeneratorUtils.FindCharacterPairIndexBased(winBoard, 0, 0);
+        winBoard[startPlayerPos.i][startPlayerPos.j] = ' ';
+        Pair endPosPlayer = GetPosEndPlayer(genes, LURD, startPlayerPos);
+        winBoard[endPosPlayer.i][endPosPlayer.j] = '@';
+
+        System.out.println("Entro al bucle de doMove");
+        GeneratorUtils.PrintCharArray(winBoard);
+        
         boolean nextMoveIsContraintuitive = false;
-        for(int i = 0 ; i < LURD.length();i++){
-            nextMoveIsContraintuitive = DoMove(manhattanSokoBoard, LURD.charAt(i));
+        for(int i = 0 ; i < lurdReversed.length();i++){
+            nextMoveIsContraintuitive = DoMove(winBoard, boxgoalList, lurdReversed.charAt(i));
             if(nextMoveIsContraintuitive){
                 nextMoveIsContraintuitive = false;
                 counterIntuitiveMoves++;
             }
         }
         
-        System.out.println("GetCounterIntuitiveMoves end: " + counterIntuitiveMoves);
         return counterIntuitiveMoves;
     }
     
-    public static boolean DoMove(ManhattanSokoBoard manhattanSokoBoard, char charAt) {
+    public static boolean DoMove(char[][] genes, ArrayList<BoxGoal> boxgoalList,char charAt) {
+        System.out.println("-----------------------------");
+        System.out.println("DoMove: ");
+        System.out.println("Tablero Antes: ");
+        GeneratorUtils.PrintCharArray(genes);
+        System.out.println("Letra: " + charAt);
         
-        System.out.println("do move: " + charAt);
-        GeneratorUtils.PrintCharArray(manhattanSokoBoard.board);
-        
-        //cache
-        int oldGlobalManhattanScore = manhattanSokoBoard.globalManhattanScore;
-
-        Pair dirPair = null;
-        boolean moveBox = false;
-        
-        switch(charAt){
-            case 'l' -> dirPair = new Pair(0,-1);
-            case 'u' -> dirPair = new Pair(-1,0);
-            case 'r' -> dirPair = new Pair(0,1);
-            case 'd' -> dirPair = new Pair(1,0);
-        }
-        
-        
-        //check if next to player have a box
-        Pair playerPos = GeneratorUtils.FindCharacterPairIndexBased(manhattanSokoBoard.board, 0, 0);
-        Pair nextToPlayer1 = playerPos.plus(dirPair);
-        Pair nextToPlayer2 = nextToPlayer1.plus(dirPair);
+        //Direction
         int pista = 0;
+        boolean boxPosChange = false;
+        int oldManhattanDistance = 0;
+        boolean isCounterIntuitive = false;
         
-        //Reset player pos
-        if(manhattanSokoBoard.board[playerPos.i][playerPos.j] == '+'){
-            manhattanSokoBoard.board[playerPos.i][playerPos.j] = '.';
-            pista = 1;
-  
+        Pair dirPair = null;
+        switch(charAt){
+            case 'l' -> dirPair = new Pair(0,-1); 
+            case 'L' -> {dirPair = new Pair(0,-1); boxPosChange = true;}
+            case 'u' -> dirPair = new Pair(-1,0);
+            case 'U' -> {dirPair = new Pair(-1,0); boxPosChange = true;}
+            case 'r' -> dirPair = new Pair(0,1);
+            case 'R' -> {dirPair = new Pair(0,1); boxPosChange = true;}
+            case 'd' -> dirPair = new Pair(1,0);
+            case 'D' -> {dirPair = new Pair(1,0); boxPosChange = true;}
         }
-            
-        else if(manhattanSokoBoard.board[playerPos.i][playerPos.j] == '@'){
-            pista = 2;
-            manhattanSokoBoard.board[playerPos.i][playerPos.j] = ' ';
-            
-            if(manhattanSokoBoard.board[nextToPlayer1.i][nextToPlayer1.j] == ' '){
-                manhattanSokoBoard.board[nextToPlayer1.i][nextToPlayer1.j] = '@';
-            }  
-        }
-            
-        
-        
-        //Next to player
-        if(manhattanSokoBoard.board[nextToPlayer1.i][nextToPlayer1.j] == '.'){
-            pista = 3;
-            manhattanSokoBoard.board[nextToPlayer1.i][nextToPlayer1.j] = '+';
-        }
-            
-        else if(manhattanSokoBoard.board[nextToPlayer1.i][nextToPlayer1.j] == '$'){
-            manhattanSokoBoard.board[nextToPlayer1.i][nextToPlayer1.j] = '@';
-            pista = 4;
-            //next to next to player
-            if(manhattanSokoBoard.board[nextToPlayer2.i][nextToPlayer2.j] == '.'){
-                pista = 5;
-                manhattanSokoBoard.board[nextToPlayer2.i][nextToPlayer2.j] = '*';
-            }
-                
-            if(manhattanSokoBoard.board[nextToPlayer2.i][nextToPlayer2.j] == ' '){
-                pista = 6;
-                manhattanSokoBoard.board[nextToPlayer2.i][nextToPlayer2.j] = '$';
-            }
 
-            moveBox = true;
-        }   
+        //check if next to player have a box
+        Pair playerPos = GeneratorUtils.FindCharacterPairIndexBased(genes, 0, 0);
+        Pair backToPlayer = playerPos.minus(dirPair);
+        Pair nextToPlayer = playerPos.plus(dirPair);
         
-        else if(manhattanSokoBoard.board[nextToPlayer1.i][nextToPlayer1.j] == '*'){
-            pista = 300;
-            manhattanSokoBoard.board[nextToPlayer1.i][nextToPlayer1.j] = '+';
+        
+        if(boxPosChange){
             
-            //next to next to player
-            if(manhattanSokoBoard.board[nextToPlayer2.i][nextToPlayer2.j] == '.'){
-                pista = 5;
-                manhattanSokoBoard.board[nextToPlayer2.i][nextToPlayer2.j] = '*';
-            }
-                
-            if(manhattanSokoBoard.board[nextToPlayer2.i][nextToPlayer2.j] == ' '){
-                pista = 6;
-                manhattanSokoBoard.board[nextToPlayer2.i][nextToPlayer2.j] = '$';
-            }
-        }
-        
-        
-        else{
-            pista = 100;
-            manhattanSokoBoard.board[nextToPlayer1.i][nextToPlayer1.j] = '@';
-        }
+            System.out.println("Cambiar caja");
             
+            BoxGoal currentBoxGoal = GetBoxGoalList(boxgoalList, nextToPlayer);
            
+            //Update boxgoal pos
+            currentBoxGoal.boxPos.Copy(playerPos); 
+            //Get old manhattan Distance
+            oldManhattanDistance = currentBoxGoal.manhattanDistance;
+            //Update manhattan distance
+            currentBoxGoal.UpdateManhattanDistance();
+            //Check counterintuitive
+            if(oldManhattanDistance > currentBoxGoal.manhattanDistance)
+                isCounterIntuitive = true;
+            
+            //Update player
+            if(genes[playerPos.i][playerPos.j] == '+'){
+                genes[playerPos.i][playerPos.j] = '.';
+                if(genes[backToPlayer.i][backToPlayer.j] == ' '){
+                    genes[backToPlayer.i][backToPlayer.j] = '@';
+                } 
+                else if(genes[backToPlayer.i][backToPlayer.j] == '.'){
+                    genes[backToPlayer.i][backToPlayer.j] = '+';
+                } 
+                pista = 1;
+            }
+            
+            else if(genes[playerPos.i][playerPos.j] == '@'){
+                
+                genes[playerPos.i][playerPos.j] = ' ';
+
+                if(genes[backToPlayer.i][backToPlayer.j] == ' '){
+                    genes[backToPlayer.i][backToPlayer.j] = '@';
+                } 
+                else if(genes[backToPlayer.i][backToPlayer.j] == '.'){
+                    genes[backToPlayer.i][backToPlayer.j] = '+';
+                } 
+                
+                pista = 2;
+            }
+            
+            //Update center
+            if(genes[playerPos.i][playerPos.j] == '.'){
+                genes[playerPos.i][playerPos.j] = '*';
+                
+                pista = 3;
+            }
+            
+            else if(genes[playerPos.i][playerPos.j] == ' '){
+                genes[playerPos.i][playerPos.j] = '$';
+                
+                pista = 4;
+            }
+            
+            //Update old box pos
+            if(genes[nextToPlayer.i][nextToPlayer.j] == '*'){
+                genes[nextToPlayer.i][nextToPlayer.j] = '.';
+                
+                pista = 5;
+            }
+            
+            else if(genes[nextToPlayer.i][nextToPlayer.j] == '$'){
+                genes[nextToPlayer.i][nextToPlayer.j] = ' ';
+                
+                pista = 6;
+            }
+        }
+            
         
-        int playerCount = GeneratorUtils.CountCharacters(0, manhattanSokoBoard.board);
+        //El player se mueve sin empujar ninguna caja
+        else{
+            
+            System.out.println("NO Cambiar caja");
+            
+            //Update player
+            if(genes[playerPos.i][playerPos.j] == '+'){
+                genes[playerPos.i][playerPos.j] = '.';
+                if(genes[backToPlayer.i][backToPlayer.j] == ' '){
+                    genes[backToPlayer.i][backToPlayer.j] = '@';
+                     pista = 11;
+                } 
+                else if(genes[backToPlayer.i][backToPlayer.j] == '.'){
+                    genes[backToPlayer.i][backToPlayer.j] = '+';
+                     pista = 111;
+                } 
+               
+            }
+            
+            else if(genes[playerPos.i][playerPos.j] == '@'){
+                
+                genes[playerPos.i][playerPos.j] = ' ';
+
+                if(genes[backToPlayer.i][backToPlayer.j] == ' '){
+                    genes[backToPlayer.i][backToPlayer.j] = '@';
+                    pista = 22;
+                } 
+                else if(genes[backToPlayer.i][backToPlayer.j] == '.'){
+                    genes[backToPlayer.i][backToPlayer.j] = '+';
+                    pista = 222;
+                } 
+                
+                
+            }
+        }
+        
+        int playerCount = GeneratorUtils.CountCharacters(0,genes);
         if(playerCount==0){
-            GeneratorUtils.PrintCharArray(manhattanSokoBoard.board);
+            GeneratorUtils.PrintCharArray(genes);
             System.out.println("player 0: " + pista);
             System.out.println("error");
         }
         
+        System.out.println("Despues");
+        GeneratorUtils.PrintCharArray(genes);
+                   
+        return isCounterIntuitive;
+    }
+    
+    public static BoxGoal GetBoxGoalList(ArrayList<BoxGoal> boxGoalList, Pair boxPos){
         
-        if(moveBox){
-            manhattanSokoBoard.globalManhattanScore = GeneratorUtils.GetBoardManhattanDistance(manhattanSokoBoard.board);
+        System.out.println("El boxPos que entro es: " + boxPos.toString());
         
-            if(manhattanSokoBoard.globalManhattanScore > oldGlobalManhattanScore){
-                return true;
+
+        for(BoxGoal boxGoal : boxGoalList){
+            boxGoal.Print();
+            
+            if(boxGoal.boxPos.i == boxPos.i && boxGoal.boxPos.j == boxPos.j){
+                return boxGoal;
             }
         }
         
-        
-        
+        System.out.println("No se encontró el boxgoal de la lista");
+        return null;
+    }
 
-        return false;
+    private static Pair GetPosEndPlayer(char[][] genes, String LURD, Pair playerPos) {
+        
+        LURD = LURD.toLowerCase();
+        for(int i = 0; i < LURD.length();i++){
+            
+            char charAt = LURD.charAt(i);
+            Pair dir = null;
+            
+            switch(charAt){
+            case 'l' -> dir = new Pair(0,-1); 
+            case 'u' -> dir = new Pair(-1,0);
+            case 'r' -> dir = new Pair(0,1);
+            case 'd' -> dir = new Pair(1,0);
+            }
+            
+            playerPos  = playerPos.plus(dir);
+        
+        }
+        
+        return playerPos;
     }
 }
-
+        
+        
+        
 
 

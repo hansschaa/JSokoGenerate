@@ -34,4 +34,9 @@ public class Pair {
     public boolean IsEquals(Pair newPair) {
         return this.i == newPair.i && this.j == newPair.j;
     }
+
+    public void Copy(Pair playerPos) {
+        this.i = playerPos.i;
+        this.j = playerPos.j;
+    }
 }

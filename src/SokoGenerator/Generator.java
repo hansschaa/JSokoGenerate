@@ -45,10 +45,10 @@ public class Generator {
     public static Random random;
     
     //Parameters
-    public static final int P_MAX_GENERATIONS = 30;
-    public static final int P_MAX_INDIVIDUALS = 14;
+    public static final int P_MAX_GENERATIONS = 22;
+    public static final int P_MAX_INDIVIDUALS = 12;
     public static final int P_TOURNAMENT_ATTEMPS = 1;
-    public static final float P_CROSSOVER_PROB = .9f;
+    public static final float P_CROSSOVER_PROB = 1f;
     public static int P_MAX_BOXES = 7;
     public static int P_CROSS_SPACING = 2;
     public static final char[][] P_BASE_BOARD = {
@@ -84,8 +84,6 @@ public class Generator {
 
     public Generator(JSoko application) throws FileNotFoundException {
         Generator.application = application;
-        //Generator.optimalSolver = new SolverAStarPushesMoves(application, new SolverGUI(application));
-        //Generator.anySolutionSolver = new SolverAnySolution(application, new SolverGUI(application));
         Generator.solverLevel = new Level(application.levelIO.database);
         Generator.solverGUI = new SolverGUI(application);
         Generator.importedPopulation = new Population<>();
@@ -141,14 +139,23 @@ public class Generator {
         for(int i = 0 ; i < totalAttempts ; i++){
             do{
                 sokobanChromosome = GetRandomInitialSokobanChromosome();
-                GeneratorUtils.PrintCharArray(sokobanChromosome.genes);
                 solution = GetSolution(sokobanChromosome.genes, true, 1);
                 if(solution == null)
                     notSolutionCount++;
    
             }while(solution == null);
 
-            sokobanChromosome.fitnessValue = solution.lurd.length();
+            System.out.println("Original: ");
+            GeneratorUtils.PrintCharArray(sokobanChromosome.genes);
+            System.out.println("===========================");
+            
+            var counterIntuitivesMoves = GeneratorUtils.GetCounterIntuitiveMoves(sokobanChromosome.genes, solution.lurd);
+            System.out.println("Counter Intuitive Moves: " + counterIntuitivesMoves);
+            
+            if(counterIntuitivesMoves > 0)
+                System.out.println("Mayor a 0");
+            
+            sokobanChromosome.fitnessValue = this.application.movesHistory.getPushesCount();
             sokobanChromosomeList.add(sokobanChromosome);
             
             solution = null;
