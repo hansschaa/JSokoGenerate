@@ -5,11 +5,10 @@
         <group>
             <file>file:/C:/Users/Hans/Documents/NetBeansProjects/JavaApplication4/src/SokoGenerator/SokoCrossover.java</file>
             <file>file:/C:/Users/Hans/Documents/NetBeansProjects/JavaApplication4/src/SokoGenerator/MyBoxData.java</file>
-            <file>file:/C:/Users/Hans/Documents/NetBeansProjects/JavaApplication4/src/de/sokoban_online/jsoko/JSoko.java</file>
             <file>file:/C:/Users/Hans/Documents/NetBeansProjects/JavaApplication4/src/SokoGenerator/Generator.java</file>
-            <file>file:/C:/Users/Hans/Documents/NetBeansProjects/JavaApplication4/src/de/sokoban_online/jsoko/board/BoxData.java</file>
             <file>file:/C:/Users/Hans/Documents/NetBeansProjects/JavaApplication4/src/SokoGenerator/SokobanFitness.java</file>
             <file>file:/C:/Users/Hans/Documents/NetBeansProjects/JavaApplication4/src/SokoGenerator/SokobanChromosome.java</file>
+            <file>file:/C:/Users/Hans/Documents/NetBeansProjects/JavaApplication4/src/SokoGenerator/BoxGoal.java</file>
             <file>file:/C:/Users/Hans/Documents/NetBeansProjects/JavaApplication4/src/de/sokoban_online/jsoko/solver/AnySolution/SolverAnySolution.java</file>
             <file>file:/C:/Users/Hans/Documents/NetBeansProjects/JavaApplication4/src/SokoGenerator/ChangeSokoElementPosMutator.java</file>
             <file>file:/C:/Users/Hans/Documents/NetBeansProjects/JavaApplication4/src/SokoGenerator/Tree/CrossPair.java</file>
@@ -17,6 +16,8 @@
             <file>file:/C:/Users/Hans/Documents/NetBeansProjects/JavaApplication4/src/Jenes.2.2.1.r765.src/jenes/GeneticAlgorithm.java</file>
             <file>file:/C:/Users/Hans/Documents/NetBeansProjects/JavaApplication4/src/SokoGenerator/SokobanGA.java</file>
             <file>file:/C:/Users/Hans/Documents/NetBeansProjects/JavaApplication4/src/SokoGenerator/Tree/Pair.java</file>
+            <file>file:/C:/Users/Hans/Documents/NetBeansProjects/JavaApplication4/src/SokoGenerator/ManhattanSokoBoard.java</file>
+            <file>file:/C:/Users/Hans/Documents/NetBeansProjects/JavaApplication4/src/SokoGenerator/SokobanChromosomeUtils.java</file>
         </group>
     </open-files>
 </project-private>

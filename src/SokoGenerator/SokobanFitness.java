@@ -38,9 +38,7 @@ public class SokobanFitness extends Fitness<SokobanChromosome> {
             //var counterIntuitiveMoves = GetCounterIntuitiveMoves(chromosome.genes, solution.lurd);
             individual.setScore(this.application.movesHistory.getPushesCount());
             
-            
             chromosome.pushes = this.application.movesHistory.getPushesCount();
-            
         }
             
         else
