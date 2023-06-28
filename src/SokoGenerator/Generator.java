@@ -60,6 +60,16 @@ public class Generator {
     {'#', ' ', ' ', ' ', ' ', ' ', ' ','#'},
     {'#', ' ', ' ', ' ', ' ', ' ', ' ','#'},
     {'#', '#', '#', '#', '#', '#', '#','#'}};
+    
+    public static final char[][] P_TEST_BOARD = {
+    {'#', '#', '#', '#', '#', '#', '#','#'},
+    {'#', ' ', ' ', ' ', ' ', ' ', ' ','#'},
+    {'#', ' ', ' ', ' ', ' ', ' ', ' ','#'},
+    {'#', ' ', '.', '#', ' ', ' ', ' ','#'},
+    {'#', '#', '#', '#', ' ', ' ', ' ','#'},
+    {'#', '@', '$', ' ', ' ', ' ', ' ','#'},
+    {'#', ' ', ' ', ' ', ' ', ' ', ' ','#'},
+    {'#', '#', '#', '#', '#', '#', '#','#'}};
 
 
     
@@ -93,7 +103,13 @@ public class Generator {
         Generator.solverLevel.setHeight(P_BASE_BOARD.length);
         Generator.solverLevel.setWidth(P_BASE_BOARD[0].length);
         
+        //Check Heuristic
+        Solution solutionTest = GetSolution(P_TEST_BOARD, true, 1);
+        int value = GeneratorUtils.GetCounterIntuitiveMoves(P_TEST_BOARD, solutionTest.lurd);
+        System.out.println("Value: " + value);
         
+        
+        /*
         GetInitialPopulation();
         // Ordenar el ArrayList de cromosomas por fitness de mayor a menor
         Collections.sort(sokobanChromosomeList, new Comparator<SokobanChromosome>() {
@@ -124,7 +140,7 @@ public class Generator {
             System.out.println("\n");
         }
 
-        RunGA();
+        RunGA();*/
     }
     
     private Population<SokobanChromosome> GetInitialPopulation() {

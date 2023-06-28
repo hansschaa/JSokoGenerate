@@ -184,8 +184,8 @@ public class GeneratorUtils {
         Pair endPosPlayer = GetPosEndPlayer(genes, LURD, startPlayerPos);
         winBoard[endPosPlayer.i][endPosPlayer.j] = '@';
 
-        System.out.println("Entro al bucle de doMove");
-        GeneratorUtils.PrintCharArray(winBoard);
+        //System.out.println("Entro al bucle de doMove");
+        //GeneratorUtils.PrintCharArray(winBoard);
         
         boolean nextMoveIsContraintuitive = false;
         for(int i = 0 ; i < lurdReversed.length();i++){
@@ -211,6 +211,7 @@ public class GeneratorUtils {
         boolean boxPosChange = false;
         int oldManhattanDistance = 0;
         boolean isCounterIntuitive = false;
+        char[][] backup = CloneCharArray(genes);
         
         Pair dirPair = null;
         switch(charAt){
@@ -245,6 +246,9 @@ public class GeneratorUtils {
             //Check counterintuitive
             if(oldManhattanDistance > currentBoxGoal.manhattanDistance)
                 isCounterIntuitive = true;
+            
+            
+            
             
             //Update player
             if(genes[playerPos.i][playerPos.j] == '+'){
@@ -297,6 +301,17 @@ public class GeneratorUtils {
                 
                 pista = 6;
             }
+            
+            
+            if(isCounterIntuitive){
+                System.out.println("---------------------------------");
+                System.out.println("Counterintuitive Move detected: ");
+                System.out.println("Estado sucesor");
+                GeneratorUtils.PrintCharArray(backup);
+                System.out.println("Estado antesesor");
+                GeneratorUtils.PrintCharArray(genes);
+                System.out.println("---------------------------------");    
+            }
         }
             
         
@@ -331,8 +346,6 @@ public class GeneratorUtils {
                     genes[backToPlayer.i][backToPlayer.j] = '+';
                     pista = 222;
                 } 
-                
-                
             }
         }
         
@@ -352,7 +365,6 @@ public class GeneratorUtils {
     public static BoxGoal GetBoxGoalList(ArrayList<BoxGoal> boxGoalList, Pair boxPos){
         
         System.out.println("El boxPos que entro es: " + boxPos.toString());
-        
 
         for(BoxGoal boxGoal : boxGoalList){
             boxGoal.Print();
