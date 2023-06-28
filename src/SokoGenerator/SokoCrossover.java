@@ -21,5 +21,6 @@ public class SokoCrossover<T extends SokobanChromosome> extends Crossover<T> {
         SokobanChromosome chromC1 = (SokobanChromosome)offsprings[0].getChromosome();
         SokobanChromosome chromC2 = (SokobanChromosome)offsprings[1].getChromosome();
         chromC1.cross(chromC2, 1);
+        chromC2.cross(chromC1, 1);
     }
 }

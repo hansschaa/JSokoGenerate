@@ -6,9 +6,7 @@
 package SokoGenerator;
 
 
-import SokoGenerator.SokoBoard.SokoBoard;
 import SokoGenerator.Tree.Pair;
-import SokoGenerator.Tree.SokoNode;
 import SokoGenerator.Tree.SokoTree;
 import de.sokoban_online.jsoko.JSoko;
 import de.sokoban_online.jsoko.leveldata.Level;
@@ -18,19 +16,11 @@ import de.sokoban_online.jsoko.solver.AnySolution.SolverAnySolution;
 import de.sokoban_online.jsoko.solver.SolverAStarPushesMoves;
 import de.sokoban_online.jsoko.solver.SolverGUI;
 import java.io.FileNotFoundException;
-import java.io.PrintStream;
-import java.nio.file.Files;
-import java.nio.file.OpenOption;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 import java.util.Random;
 import jenes.GeneticAlgorithm;
 import jenes.population.Individual;
@@ -65,9 +55,9 @@ public class Generator {
     {'#', '#', '#', '#', '#', '#', '#','#'},
     {'#', ' ', ' ', ' ', ' ', ' ', ' ','#'},
     {'#', ' ', ' ', ' ', ' ', ' ', ' ','#'},
-    {'#', ' ', '.', '#', ' ', ' ', ' ','#'},
+    {'#', '.', '.', '#', ' ', ' ', ' ','#'},
     {'#', '#', '#', '#', ' ', ' ', ' ','#'},
-    {'#', '@', '$', ' ', ' ', ' ', ' ','#'},
+    {'#', '@', '$', ' ', '$', ' ', ' ','#'},
     {'#', ' ', ' ', ' ', ' ', ' ', ' ','#'},
     {'#', '#', '#', '#', '#', '#', '#','#'}};
 
@@ -104,12 +94,13 @@ public class Generator {
         Generator.solverLevel.setWidth(P_BASE_BOARD[0].length);
         
         //Check Heuristic
-        Solution solutionTest = GetSolution(P_TEST_BOARD, true, 1);
+        /*int boxCount = GeneratorUtils.CountCharacters(1, P_TEST_BOARD);
+        Solution solutionTest = GetSolution(P_TEST_BOARD, true, boxCount);
         int value = GeneratorUtils.GetCounterIntuitiveMoves(P_TEST_BOARD, solutionTest.lurd);
-        System.out.println("Value: " + value);
+        System.out.println("Value: " + value);*/
         
         
-        /*
+        
         GetInitialPopulation();
         // Ordenar el ArrayList de cromosomas por fitness de mayor a menor
         Collections.sort(sokobanChromosomeList, new Comparator<SokobanChromosome>() {
@@ -133,14 +124,14 @@ public class Generator {
         for(SokobanChromosome sc : topTierSokobanChromosomeList)
             importedPopulation.add(new Individual<SokobanChromosome>(sc));
         
-        System.out.println("Población inicial");
-        for(Individual<SokobanChromosome> sc : Generator.importedPopulation){
+        //System.out.println("Población inicial");
+        /*for(Individual<SokobanChromosome> sc : Generator.importedPopulation){
             GeneratorUtils.PrintCharArray(sc.getChromosome().genes);
-            System.out.println("fitness: " + sc.getChromosome().fitnessValue);
-            System.out.println("\n");
-        }
+            //System.out.println("fitness: " + sc.getChromosome().fitnessValue);
+            //System.out.println("\n");
+        }*/
 
-        RunGA();*/
+        RunGA();
     }
     
     private Population<SokobanChromosome> GetInitialPopulation() {
@@ -150,7 +141,7 @@ public class Generator {
         Solution solution = null; 
         
         int notSolutionCount = 0;
-        int totalAttempts = 60;
+        int totalAttempts = 100;
         
         for(int i = 0 ; i < totalAttempts ; i++){
             do{
@@ -161,15 +152,15 @@ public class Generator {
    
             }while(solution == null);
 
-            System.out.println("Original: ");
-            GeneratorUtils.PrintCharArray(sokobanChromosome.genes);
-            System.out.println("===========================");
+            //System.out.println("Original: ");
+            //GeneratorUtils.PrintCharArray(sokobanChromosome.genes);
+            //System.out.println("===========================");
             
-            var counterIntuitivesMoves = GeneratorUtils.GetCounterIntuitiveMoves(sokobanChromosome.genes, solution.lurd);
-            System.out.println("Counter Intuitive Moves: " + counterIntuitivesMoves);
+            //var counterIntuitivesMoves = GeneratorUtils.GetCounterIntuitiveMoves(sokobanChromosome.genes, solution.lurd);
+            //System.out.println("Counter Intuitive Moves: " + counterIntuitivesMoves);
             
-            if(counterIntuitivesMoves > 0)
-                System.out.println("Mayor a 0");
+            /*if(counterIntuitivesMoves > 0)
+                System.out.println("Mayor a 0");*/
             
             sokobanChromosome.fitnessValue = this.application.movesHistory.getPushesCount();
             sokobanChromosomeList.add(sokobanChromosome);
@@ -239,39 +230,8 @@ public class Generator {
                 Generator.sokobanGA.evolve();
             }
         });
-        this.generatorThread.start();
         
-        /*boardBase = (char[][])this.sokoBoard.levels.get(0);
-        this.Preprocess();
-        if (sokoTrees.size() == 0) {
-            return false;
-        } else {
-            this.ProcessSokoTrees();
-
-            for(int i = 0; i < this.importedPopulation.size(); ++i) {
-                System.out.println("Tablero: " + (i + 1));
-                SokobanChromosome chromosome = (SokobanChromosome)this.importedPopulation.getIndividual(i).getChromosome();
-                SokobanChromosomeUtils.PrintLongestRoute(chromosome.genes, ((MyBoxData)chromosome.boxDatas.get(0)).boxRoute, ((MyBoxData)chromosome.boxDatas.get(0)).box, ((MyBoxData)chromosome.boxDatas.get(0)).goal, ((MyBoxData)chromosome.boxDatas.get(0)).boxRoute.size() - 1);
-                System.out.println();
-            }
-
-            AbstractStage<SokobanChromosome> selection = new TournamentSelector(1);
-            AbstractStage<SokobanChromosome> crossover = new SokoCrossover(2.0);
-            AbstractStage<SokobanChromosome> InvertBoxGoalMutation = new InvertBoxGoalPosMutator(0.4);
-            AbstractStage<SokobanChromosome> ChangePlayerPosMutation = new ChangePlayerPosMutator(0.25);
-            sokobanGA.addStage(selection);
-            sokobanGA.addStage(crossover);
-            sokobanGA.addStage(InvertBoxGoalMutation);
-            sokobanGA.addStage(ChangePlayerPosMutation);
-            sokobanGA.setElitism(1);
-            this.generatorThread = new Thread(new Runnable() {
-                public void run() {
-                    Generator.sokobanGA.evolve();
-                }
-            });
-            this.generatorThread.start();
-            return true;
-        }*/
+        this.generatorThread.start();
     }
 
     

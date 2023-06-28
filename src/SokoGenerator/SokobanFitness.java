@@ -23,7 +23,7 @@ public class SokobanFitness extends Fitness<SokobanChromosome> {
 
     @Override
     public void evaluate(Individual<SokobanChromosome> individual) {
-        System.out.println("Evaluate");
+        //System.out.println("Evaluate");
         
         SokobanChromosome chromosome = (SokobanChromosome)individual.getChromosome();
         int boxCount = GeneratorUtils.CountCharacters(1, chromosome.genes);
@@ -36,9 +36,17 @@ public class SokobanFitness extends Fitness<SokobanChromosome> {
             //chromosome.counterIntuitives = counterIntuitiveMoves;
             
             //var counterIntuitiveMoves = GetCounterIntuitiveMoves(chromosome.genes, solution.lurd);
-            individual.setScore(this.application.movesHistory.getPushesCount());
+            if(generator.sokobanGA.getGeneration() < 200)
+            {
+                individual.setScore(this.application.movesHistory.getPushesCount());
+                chromosome.pushes = this.application.movesHistory.getPushesCount();
+            }
             
-            chromosome.pushes = this.application.movesHistory.getPushesCount();
+            else{
+                var counterIntuitiveMoves = GeneratorUtils.GetCounterIntuitiveMoves(chromosome.genes, solution.lurd);
+                individual.setScore(counterIntuitiveMoves);
+                chromosome.counterIntuitives = counterIntuitiveMoves;
+            }
         }
             
         else
@@ -50,14 +58,5 @@ public class SokobanFitness extends Fitness<SokobanChromosome> {
         //int pushesCount = this.application.movesHistory.getPushesCount();
         /*chromosome.moves = movesCount;
         chromosome.pushes = pushesCount;*/
-    }
-
-        
-        
-        
- 
-    
-    
-    
-    
+    }   
 }

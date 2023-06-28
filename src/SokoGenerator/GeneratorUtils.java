@@ -9,7 +9,6 @@ import static SokoGenerator.Generator.random;
 import SokoGenerator.Tree.Pair;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 /**
  *
@@ -97,7 +96,7 @@ public class GeneratorUtils {
         }
 
         // El carácter no ha sido encontrado
-        GeneratorUtils.PrintCharArray(board);
+        //GeneratorUtils.PrintCharArray(board);
         System.out.println("Carácter " + characterID + " de specific id: " + specificCount+  " no encontrado en la matriz.");
         return null;
     }
@@ -155,7 +154,7 @@ public class GeneratorUtils {
     
     public static int GetCounterIntuitiveMoves(char[][] genes, String LURD){
     
-        System.out.println("GetCounterIntuitiveMoves");
+        //System.out.println("GetCounterIntuitiveMoves");
         
         int counterIntuitiveMoves = 0;
         StringBuilder lurdReversed = new StringBuilder(LURD).reverse();
@@ -200,11 +199,11 @@ public class GeneratorUtils {
     }
     
     public static boolean DoMove(char[][] genes, ArrayList<BoxGoal> boxgoalList,char charAt) {
-        System.out.println("-----------------------------");
-        System.out.println("DoMove: ");
-        System.out.println("Tablero Antes: ");
-        GeneratorUtils.PrintCharArray(genes);
-        System.out.println("Letra: " + charAt);
+        //System.out.println("-----------------------------");
+        //System.out.println("DoMove: ");
+        //System.out.println("Tablero Antes: ");
+        //GeneratorUtils.PrintCharArray(genes);
+        //System.out.println("Letra: " + charAt);
         
         //Direction
         int pista = 0;
@@ -233,7 +232,7 @@ public class GeneratorUtils {
         
         if(boxPosChange){
             
-            System.out.println("Cambiar caja");
+            //System.out.println("Cambiar caja");
             
             BoxGoal currentBoxGoal = GetBoxGoalList(boxgoalList, nextToPlayer);
            
@@ -246,9 +245,6 @@ public class GeneratorUtils {
             //Check counterintuitive
             if(oldManhattanDistance > currentBoxGoal.manhattanDistance)
                 isCounterIntuitive = true;
-            
-            
-            
             
             //Update player
             if(genes[playerPos.i][playerPos.j] == '+'){
@@ -303,7 +299,7 @@ public class GeneratorUtils {
             }
             
             
-            if(isCounterIntuitive){
+            /*if(isCounterIntuitive){
                 System.out.println("---------------------------------");
                 System.out.println("Counterintuitive Move detected: ");
                 System.out.println("Estado sucesor");
@@ -311,14 +307,14 @@ public class GeneratorUtils {
                 System.out.println("Estado antesesor");
                 GeneratorUtils.PrintCharArray(genes);
                 System.out.println("---------------------------------");    
-            }
+            }*/
         }
             
         
         //El player se mueve sin empujar ninguna caja
         else{
             
-            System.out.println("NO Cambiar caja");
+            //System.out.println("NO Cambiar caja");
             
             //Update player
             if(genes[playerPos.i][playerPos.j] == '+'){
@@ -350,24 +346,24 @@ public class GeneratorUtils {
         }
         
         int playerCount = GeneratorUtils.CountCharacters(0,genes);
-        if(playerCount==0){
+        /*if(playerCount==0){
             GeneratorUtils.PrintCharArray(genes);
             System.out.println("player 0: " + pista);
             System.out.println("error");
-        }
+        }*/
         
-        System.out.println("Despues");
-        GeneratorUtils.PrintCharArray(genes);
+        //System.out.println("Despues");
+        //GeneratorUtils.PrintCharArray(genes);
                    
         return isCounterIntuitive;
     }
     
     public static BoxGoal GetBoxGoalList(ArrayList<BoxGoal> boxGoalList, Pair boxPos){
         
-        System.out.println("El boxPos que entro es: " + boxPos.toString());
+        //System.out.println("El boxPos que entro es: " + boxPos.toString());
 
         for(BoxGoal boxGoal : boxGoalList){
-            boxGoal.Print();
+            //boxGoal.Print();
             
             if(boxGoal.boxPos.i == boxPos.i && boxGoal.boxPos.j == boxPos.j){
                 return boxGoal;

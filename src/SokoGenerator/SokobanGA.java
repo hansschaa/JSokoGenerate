@@ -7,12 +7,7 @@ package SokoGenerator;
 
 import de.sokoban_online.jsoko.JSoko;
 import de.sokoban_online.jsoko.leveldata.Level;
-import de.sokoban_online.jsoko.leveldata.LevelCollection;
-import de.sokoban_online.jsoko.leveldata.solutions.Solution;
 import de.sokoban_online.jsoko.solver.Solver;
-import de.sokoban_online.jsoko.solver.SolverAStarPushesMoves;
-import de.sokoban_online.jsoko.solver.SolverGUI;
-import de.sokoban_online.jsoko.solver.AnySolution.SolverAnySolution;
 import java.io.PrintStream;
 import jenes.GenerationEventListener;
 import jenes.GeneticAlgorithm;
