@@ -6,6 +6,7 @@ package SokoGenerator;
 
 import static SokoGenerator.Generator.P_BASE_BOARD;
 import static SokoGenerator.Generator.random;
+import SokoGenerator.Tree.CrossPair;
 import SokoGenerator.Tree.Pair;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -395,6 +396,20 @@ public class GeneratorUtils {
         
         return playerPos;
     }
+
+    static Pair RemoveRandomElementByType(int elementID, int maxID, Pair excludePair, char[][] genes) {
+        
+        Pair pair = null;
+        int randomID;
+        do{
+            randomID = Generator.random.nextInt(0, maxID);
+            pair = GeneratorUtils.FindCharacterPairIndexBased(genes, elementID, randomID);
+        }while(pair.i == excludePair.i && pair.j == excludePair.j);
+        
+        return pair;
+    }
+
+
 }
         
         

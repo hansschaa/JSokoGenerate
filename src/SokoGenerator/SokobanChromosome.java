@@ -283,9 +283,10 @@ public class SokobanChromosome implements Chromosome<SokobanChromosome> {
             }
             
             //Check if clone is legal
-            boolean isLegal = IsLegal(cloneBoard);
+            boolean isLegal = IsLegal(cloneBoard, randomInterestingPivot);
             if(isLegal){
                 int boxCount = GeneratorUtils.CountCharacters(1, cloneBoard);
+                
                 solution = Generator.GetSolution(cloneBoard, false, boxCount);
                 if(solution != null){
                     Generator.R_TOTAL_EFFECTIVE_CROSSOVER++;
@@ -564,15 +565,12 @@ public class SokobanChromosome implements Chromosome<SokobanChromosome> {
         return false;
     }
     
-        public boolean IsLegal(char[][] board){
-    
+    public boolean IsLegal(char[][] board, CrossPair newCrossPair){
+
         int playerCount =  GeneratorUtils.CountCharacters(0, board);
         int boxCount = GeneratorUtils.CountCharacters(1, board);
         int goalCount = GeneratorUtils.CountCharacters(2, board);
       
-        //System.out.println("playercount: " + playerCount);
-        //System.out.println("boxCount: " + boxCount);
-        //System.out.println("goalCount: " + goalCount);
         if(playerCount != 1)
             return false;
         
@@ -581,6 +579,26 @@ public class SokobanChromosome implements Chromosome<SokobanChromosome> {
         
         if(boxCount != goalCount)
             return false;
+        
+        if(boxCount > Generator.P_MAX_BOXES){
+            
+            Pair boxToRemove = GeneratorUtils.RemoveRandomElementByType(1,boxCount,newCrossPair.pair, board);
+            Pair goalToRemove = GeneratorUtils.RemoveRandomElementByType(2,goalCount,newCrossPair.pair, board);
+            
+            //Replace box
+            if(board[boxToRemove.i][boxToRemove.j] == '$')
+                board[boxToRemove.i][boxToRemove.j] = ' ';
+            else if(board[boxToRemove.i][boxToRemove.j] == '*')
+                board[boxToRemove.i][boxToRemove.j] = '.';
+            
+            //Replace goal
+            if(board[goalToRemove.i][goalToRemove.j] == '.')
+                board[goalToRemove.i][goalToRemove.j] = ' ';
+            else if(board[goalToRemove.i][goalToRemove.j] == '*')
+                board[goalToRemove.i][goalToRemove.j] = '$';
+            else if(board[goalToRemove.i][goalToRemove.j] == '+')
+                board[goalToRemove.i][goalToRemove.j] = '@';
+        }
         
         return true;
     }

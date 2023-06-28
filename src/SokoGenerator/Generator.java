@@ -39,7 +39,7 @@ public class Generator {
     public static final int P_MAX_INDIVIDUALS = 12;
     public static final int P_TOURNAMENT_ATTEMPS = 1;
     public static final float P_CROSSOVER_PROB = 1f;
-    public static int P_MAX_BOXES = 7;
+    public static int P_MAX_BOXES = 8;
     public static int P_CROSS_SPACING = 2;
     public static final char[][] P_BASE_BOARD = {
     {'#', '#', '#', '#', '#', '#', '#','#'},
