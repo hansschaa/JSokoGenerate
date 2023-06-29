@@ -361,14 +361,16 @@ public class GeneratorUtils {
     
     public static BoxGoal GetBoxGoalList(ArrayList<BoxGoal> boxGoalList, Pair boxPos){
         
-        //System.out.println("El boxPos que entro es: " + boxPos.toString());
-
         for(BoxGoal boxGoal : boxGoalList){
-            //boxGoal.Print();
-            
             if(boxGoal.boxPos.i == boxPos.i && boxGoal.boxPos.j == boxPos.j){
                 return boxGoal;
             }
+        }
+        
+        
+        System.out.println("El boxPos que entro es: " + boxPos.toString());
+        for(BoxGoal boxGoal : boxGoalList){
+            boxGoal.Print();
         }
         
         System.out.println("No se encontró el boxgoal de la lista");
@@ -407,6 +409,15 @@ public class GeneratorUtils {
         }while(pair.i == excludePair.i && pair.j == excludePair.j);
         
         return pair;
+    }
+
+    static String Encode(Pair boxPair, Pair goalPair, Pair playerPair) {
+        
+        String encode = Integer.toString(boxPair.i)+Integer.toString(boxPair.j)+
+                        Integer.toString(goalPair.i)+Integer.toString(goalPair.j)+
+                        Integer.toString(playerPair.i)+Integer.toString(playerPair.j);
+        
+        return encode;
     }
 
 

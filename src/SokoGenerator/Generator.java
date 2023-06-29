@@ -19,9 +19,11 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import jenes.GeneticAlgorithm;
 import jenes.population.Individual;
 import jenes.population.Population;
@@ -35,13 +37,24 @@ public class Generator {
     public static Random random;
     
     //Parameters
-    public static final int P_MAX_GENERATIONS = 22;
-    public static final int P_MAX_INDIVIDUALS = 12;
+    public static final int P_MAX_GENERATIONS = 25;
+    public static final int P_MAX_INDIVIDUALS = 15;
     public static final int P_TOURNAMENT_ATTEMPS = 1;
-    public static final float P_CROSSOVER_PROB = 1f;
+    public static final float P_CROSSOVER_PROB = .92f;
     public static int P_MAX_BOXES = 8;
     public static int P_CROSS_SPACING = 2;
     public static final char[][] P_BASE_BOARD = {
+    {'#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#'},
+    {'#', '#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#'},
+    {'#', '#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#'},
+    {'#', '#', '#', '#', '#', '#', '#', ' ', ' ', '#', '#'},
+    {'#', ' ', ' ', ' ', '#', ' ', ' ', ' ', ' ', '#', '#'},
+    {'#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#', '#'},
+    {'#', ' ', ' ', '#', ' ', ' ', ' ', ' ', '#', '#', '#'},
+    {'#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#'}};
+    
+    
+    /*public static final char[][] P_BASE_BOARD = {
     {'#', '#', '#', '#', '#', '#', '#','#'},
     {'#', ' ', ' ', ' ', ' ', ' ', ' ','#'},
     {'#', ' ', ' ', ' ', ' ', ' ', ' ','#'},
@@ -49,7 +62,7 @@ public class Generator {
     {'#', '#', '#', '#', ' ', ' ', ' ','#'},
     {'#', ' ', ' ', ' ', ' ', ' ', ' ','#'},
     {'#', ' ', ' ', ' ', ' ', ' ', ' ','#'},
-    {'#', '#', '#', '#', '#', '#', '#','#'}};
+    {'#', '#', '#', '#', '#', '#', '#','#'}};*/
     
     public static final char[][] P_TEST_BOARD = {
     {'#', '#', '#', '#', '#', '#', '#','#'},
@@ -137,37 +150,46 @@ public class Generator {
     private Population<SokobanChromosome> GetInitialPopulation() {
         Population<SokobanChromosome> initialPopulation = new Population();
 
-        SokobanChromosome sokobanChromosome = null;
         Solution solution = null; 
         
+        // Obj is the type of the object to be stored in Set 
+        Set<String> set = new HashSet<String> (); 
+        
         int notSolutionCount = 0;
-        int totalAttempts = 100;
+        int totalAttempts = 60;
+        InitialChromosomePair initialChromosomePair = null;
+        long startTime = System.currentTimeMillis(); 
         
         for(int i = 0 ; i < totalAttempts ; i++){
             do{
-                sokobanChromosome = GetRandomInitialSokobanChromosome();
-                solution = GetSolution(sokobanChromosome.genes, true, 1);
+                initialChromosomePair = GetRandomInitialSokobanChromosome();
+                solution = GetSolution(initialChromosomePair.sokobanChromosome.genes, true, 1);
                 if(solution == null)
                     notSolutionCount++;
-   
-            }while(solution == null);
+
+            }while(solution == null || set.contains(initialChromosomePair.encode));
 
             //System.out.println("Original: ");
             //GeneratorUtils.PrintCharArray(sokobanChromosome.genes);
             //System.out.println("===========================");
-            
+
             //var counterIntuitivesMoves = GeneratorUtils.GetCounterIntuitiveMoves(sokobanChromosome.genes, solution.lurd);
             //System.out.println("Counter Intuitive Moves: " + counterIntuitivesMoves);
-            
+
             /*if(counterIntuitivesMoves > 0)
                 System.out.println("Mayor a 0");*/
-            
-            sokobanChromosome.fitnessValue = this.application.movesHistory.getPushesCount();
-            sokobanChromosomeList.add(sokobanChromosome);
-            
+
+            initialChromosomePair.sokobanChromosome.fitnessValue = this.application.movesHistory.getPushesCount();
+            sokobanChromosomeList.add(initialChromosomePair.sokobanChromosome);
+            set.add(initialChromosomePair.encode);
             solution = null;
         }
         
+        long endTime = System.currentTimeMillis(); // Marca de tiempo final
+        long executionTime = endTime - startTime; // Tiempo de ejecución en milisegundos
+
+        System.out.println("Tiempo de ejecución de vecindario inicial: " + executionTime + " ms");
+
         System.out.println("Sin solución totales: " + notSolutionCount);
         System.out.println("Total: " + totalAttempts);
         
@@ -191,7 +213,7 @@ public class Generator {
         return Generator.sol;
     }
 
-    private SokobanChromosome GetRandomInitialSokobanChromosome() {
+    private InitialChromosomePair GetRandomInitialSokobanChromosome() {
         
         char[][] baseBoardClone = GeneratorUtils.CloneCharArray(P_BASE_BOARD);
          
@@ -206,7 +228,11 @@ public class Generator {
 
         SokobanChromosome newRandChromosome = new SokobanChromosome(baseBoardClone);
         
-        return newRandChromosome;
+        InitialChromosomePair initialChromosomePair = 
+                new InitialChromosomePair(GeneratorUtils.Encode(boxPair,goalPair, playerPair), 
+                        newRandChromosome);
+        
+        return initialChromosomePair;
     }
 
     
@@ -243,6 +269,8 @@ public class Generator {
         sokobanGA.addStage(crossover);
         sokobanGA.addStage(ChangeSokoElementPosMutator);
         sokobanGA.setElitism(1);
+        
+        
     }
     
     private void Preprocess() {
@@ -309,7 +337,16 @@ public class Generator {
         Population.Statistics.Group group = sokobanGA.getCurrentPopulation().getStatistics().getGroup(Population.LEGALS);
         Individual best = group.get(0);
         double distance = best.getScore();
-        System.out.format("%s\n\tended in %d ms, \n\ttime spent per fitness evaluation %d \n\tfitness evaluations performed: %d\n\ttime for fitness evaluation/total time: %f%%\n\tdistance from target: %.2f (%s)\n", "End", stats.getExecutionTime(), stats.getTimeSpentForFitnessEval(), stats.getFitnessEvaluationNumbers(), (double)stats.getTimeSpentForFitnessEval() * 100.0 / (double)stats.getExecutionTime(), distance, distance == 0.0 ? "exact matching" : "");
+        System.out.format("%s\n\tended in %d ms, \n\ttime spent per fitness evaluation %d "
+                + "\n\tfitness evaluations performed: %d\n\ttime for fitness evaluation/total time: %f%%"
+                + "\n\tdistance from target: %.2f (%s)\n", "End", 
+                stats.getExecutionTime(), stats.getTimeSpentForFitnessEval(), 
+                stats.getFitnessEvaluationNumbers(), 
+                (double)stats.getTimeSpentForFitnessEval() * 100.0 / (double)stats.getExecutionTime(), 
+                distance, distance == 0.0 ? "exact matching" : "");
+        
+        
+        
         this.ExportLevels();
         this.generatorThread.interrupt();
     }
@@ -335,20 +372,30 @@ public class Generator {
             }
             });
             
-            for(SokobanChromosome sc : finalChromosomesSorted){
+            /*for(SokobanChromosome sc : finalChromosomesSorted){
                 /*System.out.println("Moves, Pushes , boxChanges: " + sc.getChromosome().moves + "," + sc.getChromosome().pushes + "," +
                         sc.getChromosome().boxChanges);
-                System.out.println("\n");*/
+                System.out.println("\n");
                 GeneratorUtils.PrintCharArray(sc.genes);
                 System.out.println(sc.moves + "," + sc.pushes + "," + sc.boxChanges + "," + sc.counterIntuitives);
-            }
+            }*/
 
-            System.out.println("Total crossover: " + Generator.R_TOTAL_CROSSOVER);
+            //Best individual
+            SokobanChromosome bestIndividual = finalChromosomesSorted.get(0);
+            
+            /*System.out.println("Total crossover: " + Generator.R_TOTAL_CROSSOVER);
             System.out.println("Total effective crossover: " + Generator.R_TOTAL_EFFECTIVE_CROSSOVER);
             System.out.println("Total Mutation: " + Generator.R_TOTAL_MUTATION);
             System.out.println("Total effective Mutation: " + Generator.R_TOTAL_EFFECTIVE_MUTATION);
             System.out.println("Total repair: " + Generator.R_TOTAL_REPAIR);
-            System.out.println("Total effective repair: " + Generator.R_TOTAL_EFFECTIVE_REPAIR);
+            System.out.println("Total effective repair: " + Generator.R_TOTAL_EFFECTIVE_REPAIR);*/
+            
+            System.out.println(bestIndividual.counterIntuitives + "," + Generator.R_TOTAL_REPAIR + "," + R_TOTAL_EFFECTIVE_REPAIR 
+                    + "," + Generator.R_TOTAL_CROSSOVER + "," + Generator.R_TOTAL_EFFECTIVE_CROSSOVER 
+                    + "," + Generator.R_TOTAL_EFFECTIVE_CROSSOVER + "," + Generator.R_TOTAL_MUTATION
+                    + "," + Generator.R_TOTAL_EFFECTIVE_MUTATION);
+            
+            GeneratorUtils.PrintCharArray(bestIndividual.genes);
             
         } catch (Exception var11) {
             System.out.println("Error");
