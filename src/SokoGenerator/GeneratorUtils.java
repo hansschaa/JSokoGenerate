@@ -235,7 +235,7 @@ public class GeneratorUtils {
             
             //System.out.println("Cambiar caja");
             
-            BoxGoal currentBoxGoal = GetBoxGoalList(boxgoalList, nextToPlayer);
+            BoxGoal currentBoxGoal = GetBoxGoalList(boxgoalList, nextToPlayer, genes);
            
             //Update boxgoal pos
             currentBoxGoal.boxPos.Copy(playerPos); 
@@ -359,7 +359,7 @@ public class GeneratorUtils {
         return isCounterIntuitive;
     }
     
-    public static BoxGoal GetBoxGoalList(ArrayList<BoxGoal> boxGoalList, Pair boxPos){
+    public static BoxGoal GetBoxGoalList(ArrayList<BoxGoal> boxGoalList, Pair boxPos, char[][] genes){
         
         for(BoxGoal boxGoal : boxGoalList){
             if(boxGoal.boxPos.i == boxPos.i && boxGoal.boxPos.j == boxPos.j){
@@ -372,6 +372,8 @@ public class GeneratorUtils {
         for(BoxGoal boxGoal : boxGoalList){
             boxGoal.Print();
         }
+        System.out.println("Tablero: ");
+        GeneratorUtils.PrintCharArray(genes);
         
         System.out.println("No se encontró el boxgoal de la lista");
         return null;
