@@ -97,7 +97,7 @@ public class GeneratorUtils {
         }
 
         // El carácter no ha sido encontrado
-        //GeneratorUtils.PrintCharArray(board);
+        GeneratorUtils.PrintCharArray(board);
         System.out.println("Carácter " + characterID + " de specific id: " + specificCount+  " no encontrado en la matriz.");
         return null;
     }
@@ -188,13 +188,17 @@ public class GeneratorUtils {
         //GeneratorUtils.PrintCharArray(winBoard);
         
         boolean nextMoveIsContraintuitive = false;
+        //System.out.println("-------------------------------");
         for(int i = 0 ; i < lurdReversed.length();i++){
+            //System.out.println("i: " + i + " | Char: " + lurdReversed.charAt(i));
+            //GeneratorUtils.PrintCharArray(winBoard);
             nextMoveIsContraintuitive = DoMove(winBoard, boxgoalList, lurdReversed.charAt(i));
             if(nextMoveIsContraintuitive){
                 nextMoveIsContraintuitive = false;
                 counterIntuitiveMoves++;
             }
         }
+        ///System.out.println("-------------------------------");
         
         return counterIntuitiveMoves;
     }
@@ -211,7 +215,7 @@ public class GeneratorUtils {
         boolean boxPosChange = false;
         int oldManhattanDistance = 0;
         boolean isCounterIntuitive = false;
-        char[][] backup = CloneCharArray(genes);
+        //char[][] backup = CloneCharArray(genes);
         
         Pair dirPair = null;
         switch(charAt){
@@ -233,9 +237,8 @@ public class GeneratorUtils {
         
         if(boxPosChange){
             
-            //System.out.println("Cambiar caja");
             
-            BoxGoal currentBoxGoal = GetBoxGoalList(boxgoalList, nextToPlayer, genes);
+            BoxGoal currentBoxGoal = GetBoxGoalList(boxgoalList, nextToPlayer, genes, charAt);
            
             //Update boxgoal pos
             currentBoxGoal.boxPos.Copy(playerPos); 
@@ -247,8 +250,42 @@ public class GeneratorUtils {
             if(oldManhattanDistance > currentBoxGoal.manhattanDistance)
                 isCounterIntuitive = true;
             
-            //Update player
-            if(genes[playerPos.i][playerPos.j] == '+'){
+            //Update old
+            if(genes[backToPlayer.i][backToPlayer.j] == ' '){
+                genes[backToPlayer.i][backToPlayer.j] = '@';
+            } 
+            
+            else if(genes[backToPlayer.i][backToPlayer.j] == '.'){
+                genes[backToPlayer.i][backToPlayer.j] = '+';
+            } 
+            
+            //restore old
+            if(genes[playerPos.i][playerPos.j] == '@')
+                genes[playerPos.i][playerPos.j] = ' ';
+            else if(genes[playerPos.i][playerPos.j] == '+')
+                genes[playerPos.i][playerPos.j] = '.';
+            
+            
+            //Update center
+            if( genes[playerPos.i][playerPos.j] == '.' ){
+                genes[playerPos.i][playerPos.j] =  '*';
+            }
+            
+            else if(genes[playerPos.i][playerPos.j] == ' '){
+                genes[playerPos.i][playerPos.j] =  '$';
+            }
+            
+            //restore
+            if(genes[nextToPlayer.i][nextToPlayer.j] == '*'){
+                genes[nextToPlayer.i][nextToPlayer.j] =  '.';
+            }
+            
+            else if(genes[nextToPlayer.i][nextToPlayer.j] == '$'){
+                genes[nextToPlayer.i][nextToPlayer.j] =  ' ';
+            }
+            
+            
+            /*if(genes[playerPos.i][playerPos.j] == '+'){
                 genes[playerPos.i][playerPos.j] = '.';
                 if(genes[backToPlayer.i][backToPlayer.j] == ' '){
                     genes[backToPlayer.i][backToPlayer.j] = '@';
@@ -322,11 +359,11 @@ public class GeneratorUtils {
                 genes[playerPos.i][playerPos.j] = '.';
                 if(genes[backToPlayer.i][backToPlayer.j] == ' '){
                     genes[backToPlayer.i][backToPlayer.j] = '@';
-                     pista = 11;
+                    pista = 11;
                 } 
                 else if(genes[backToPlayer.i][backToPlayer.j] == '.'){
                     genes[backToPlayer.i][backToPlayer.j] = '+';
-                     pista = 111;
+                    pista = 111;
                 } 
                
             }
@@ -346,7 +383,7 @@ public class GeneratorUtils {
             }
         }
         
-        int playerCount = GeneratorUtils.CountCharacters(0,genes);
+        //int playerCount = GeneratorUtils.CountCharacters(0,genes);
         /*if(playerCount==0){
             GeneratorUtils.PrintCharArray(genes);
             System.out.println("player 0: " + pista);
@@ -359,7 +396,7 @@ public class GeneratorUtils {
         return isCounterIntuitive;
     }
     
-    public static BoxGoal GetBoxGoalList(ArrayList<BoxGoal> boxGoalList, Pair boxPos, char[][] genes){
+    public static BoxGoal GetBoxGoalList(ArrayList<BoxGoal> boxGoalList, Pair boxPos, char[][] genes, Character charAt){
         
         for(BoxGoal boxGoal : boxGoalList){
             if(boxGoal.boxPos.i == boxPos.i && boxGoal.boxPos.j == boxPos.j){
@@ -374,7 +411,7 @@ public class GeneratorUtils {
         }
         System.out.println("Tablero: ");
         GeneratorUtils.PrintCharArray(genes);
-        
+        System.out.println("Letra: " + charAt);
         System.out.println("No se encontró el boxgoal de la lista");
         return null;
     }

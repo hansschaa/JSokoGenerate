@@ -41,6 +41,7 @@ public class Generator {
     public static final int P_MAX_INDIVIDUALS = 15;
     public static final int P_TOURNAMENT_ATTEMPS = 1;
     public static final float P_CROSSOVER_PROB = .92f;
+    public static final float P_MUTATION_PROB = .1f;
     public static int P_MAX_BOXES = 8;
     public static int P_CROSS_SPACING = 2;
     public static final char[][] P_BASE_BOARD = {
@@ -264,13 +265,11 @@ public class Generator {
     private void SetupEvolutionaryAlgorithm() {
         AbstractStage<SokobanChromosome> selection = new TournamentSelector(Generator.P_TOURNAMENT_ATTEMPS);
         AbstractStage<SokobanChromosome> crossover = new SokoCrossover(P_CROSSOVER_PROB);
-        AbstractStage<SokobanChromosome> ChangeSokoElementPosMutator = new ChangeSokoElementPosMutator(0.35);
+        AbstractStage<SokobanChromosome> ChangeSokoElementPosMutator = new ChangeSokoElementPosMutator(P_MUTATION_PROB);
         sokobanGA.addStage(selection);
         sokobanGA.addStage(crossover);
         sokobanGA.addStage(ChangeSokoElementPosMutator);
         sokobanGA.setElitism(1);
-        
-        
     }
     
     private void Preprocess() {
